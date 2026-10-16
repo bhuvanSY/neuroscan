@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  background-color: #f8fafc;
+  color: #0f172a;
+  font-family: 'Inter', 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ------------------------------------------------------------------------- */
+/* Medical Web App Typography Hierarchy                                      */
+/* ------------------------------------------------------------------------- */
+
+/* Headings & Action Buttons: Proxima Nova / Inter (Geometric, Modern, High-Legibility) */
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: 'Proxima Nova', 'Inter', -apple-system, sans-serif;
+  letter-spacing: -0.015em;
+  font-weight: 700;
+}
+
+button, .font-action {
+  font-family: 'Proxima Nova', 'Inter', -apple-system, sans-serif;
+  letter-spacing: -0.005em;
+}
+
+/* Body Text, Explanations & Patient Portals: Open Sans / Inter (Humanist & Friendly) */
+p, .font-body, .prose {
+  font-family: 'Open Sans', 'Inter', sans-serif;
+  line-height: 1.6;
+}
+
+/* Data Tables, Numeric Metrics & Telemetry: Roboto (Geometric, Structured, Tabular Nums) */
+table, thead, tbody, th, td, .font-table, .metric-value, .tabular-nums {
+  font-family: 'Roboto', 'Inter', sans-serif;
+  font-feature-settings: 'tnum' on, 'lnum' on;
+}
+
+/* Small App Copy, Micro-labels & Tooltips: Source Sans 3 (Adobe UI Engineered) */
+.font-app-copy, .text-xs, .text-\[11px\], .badge-text {
+  font-family: 'Source Sans 3', 'Source Sans Pro', 'Inter', sans-serif;
+}
+
+/* Patient-Facing Callouts, Reassurance & Compassion Notices: Lato */
+.font-patient, .patient-note, .patient-card {
+  font-family: 'Lato', 'Open Sans', sans-serif;
+}
+
+/* ------------------------------------------------------------------------- */
+/* Global Medical Font Preset Overrides                                      */
+/* ------------------------------------------------------------------------- */
+.theme-font-inter * {
+  font-family: 'Inter', sans-serif !important;
+}
+
+.theme-font-opensans * {
+  font-family: 'Open Sans', sans-serif !important;
+}
+
+.theme-font-roboto * {
+  font-family: 'Roboto', sans-serif !important;
+}
+
+.theme-font-sourcesans * {
+  font-family: 'Source Sans 3', 'Source Sans Pro', sans-serif !important;
+}
+
+.theme-font-lato * {
+  font-family: 'Lato', sans-serif !important;
+}
+
+.theme-font-proxima * {
+  font-family: 'Proxima Nova', 'Inter', sans-serif !important;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Print styling for medical report */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+}

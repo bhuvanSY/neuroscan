@@ -1,0 +1,1078 @@
+{
+  "custom_cnn": {
+    "metrics": {
+      "accuracy": 0.865625,
+      "macro_precision": 0.874458790138572,
+      "macro_recall": 0.865625,
+      "macro_f1": 0.8618700196323652,
+      "weighted_f1": 0.8618700196323652,
+      "per_class": {
+        "glioma": {
+          "precision": 0.9666666666666667,
+          "recall": 0.725,
+          "f1_score": 0.8285714285714286,
+          "support": 400
+        },
+        "meningioma": {
+          "precision": 0.8515406162464986,
+          "recall": 0.76,
+          "f1_score": 0.8031704095112285,
+          "support": 400
+        },
+        "no_tumor": {
+          "precision": 0.8142857142857143,
+          "recall": 0.9975,
+          "f1_score": 0.8966292134831461,
+          "support": 400
+        },
+        "pituitary": {
+          "precision": 0.8653421633554084,
+          "recall": 0.98,
+          "f1_score": 0.9191090269636577,
+          "support": 400
+        }
+      },
+      "confusion_matrix": [
+        [
+          290,
+          45,
+          54,
+          11
+        ],
+        [
+          10,
+          304,
+          37,
+          49
+        ],
+        [
+          0,
+          0,
+          399,
+          1
+        ],
+        [
+          0,
+          8,
+          0,
+          392
+        ]
+      ],
+      "total_samples": 1600,
+      "macro_roc_auc": 0.9702901041666667,
+      "per_class_roc_auc": {
+        "glioma": 0.9236791666666666,
+        "meningioma": 0.9669354166666667,
+        "no_tumor": 0.9938354166666666,
+        "pituitary": 0.9967104166666666
+      }
+    },
+    "raw_calibration": {
+      "expected_calibration_error": 0.044540965966880376,
+      "maximum_calibration_error": 0.19768118858337405,
+      "binned_calibration": [
+        {
+          "bin_lower": 0.0,
+          "bin_upper": 0.1,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.05
+        },
+        {
+          "bin_lower": 0.1,
+          "bin_upper": 0.2,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.15000000000000002
+        },
+        {
+          "bin_lower": 0.2,
+          "bin_upper": 0.30000000000000004,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.25
+        },
+        {
+          "bin_lower": 0.30000000000000004,
+          "bin_upper": 0.4,
+          "count": 6,
+          "accuracy": 0.16666666666666666,
+          "confidence": 0.3643478552500407
+        },
+        {
+          "bin_lower": 0.4,
+          "bin_upper": 0.5,
+          "count": 27,
+          "accuracy": 0.4074074074074074,
+          "confidence": 0.46293971715150056
+        },
+        {
+          "bin_lower": 0.5,
+          "bin_upper": 0.6000000000000001,
+          "count": 80,
+          "accuracy": 0.4375,
+          "confidence": 0.547860898077488
+        },
+        {
+          "bin_lower": 0.6000000000000001,
+          "bin_upper": 0.7000000000000001,
+          "count": 74,
+          "accuracy": 0.581081081081081,
+          "confidence": 0.6483423653486613
+        },
+        {
+          "bin_lower": 0.7000000000000001,
+          "bin_upper": 0.8,
+          "count": 83,
+          "accuracy": 0.6867469879518072,
+          "confidence": 0.7542228433023016
+        },
+        {
+          "bin_lower": 0.8,
+          "bin_upper": 0.9,
+          "count": 146,
+          "accuracy": 0.7191780821917808,
+          "confidence": 0.8521456698032275
+        },
+        {
+          "bin_lower": 0.9,
+          "bin_upper": 1.0,
+          "count": 1184,
+          "accuracy": 0.9569256756756757,
+          "confidence": 0.9820609082644051
+        }
+      ]
+    },
+    "calibrated_calibration": {
+      "expected_calibration_error": 0.0460030113533139,
+      "maximum_calibration_error": 0.1984297583500544,
+      "binned_calibration": [
+        {
+          "bin_lower": 0.0,
+          "bin_upper": 0.1,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.05
+        },
+        {
+          "bin_lower": 0.1,
+          "bin_upper": 0.2,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.15000000000000002
+        },
+        {
+          "bin_lower": 0.2,
+          "bin_upper": 0.30000000000000004,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.25
+        },
+        {
+          "bin_lower": 0.30000000000000004,
+          "bin_upper": 0.4,
+          "count": 6,
+          "accuracy": 0.16666666666666666,
+          "confidence": 0.36509642501672107
+        },
+        {
+          "bin_lower": 0.4,
+          "bin_upper": 0.5,
+          "count": 26,
+          "accuracy": 0.38461538461538464,
+          "confidence": 0.4632114962889598
+        },
+        {
+          "bin_lower": 0.5,
+          "bin_upper": 0.6000000000000001,
+          "count": 77,
+          "accuracy": 0.42857142857142855,
+          "confidence": 0.5467377343735138
+        },
+        {
+          "bin_lower": 0.6000000000000001,
+          "bin_upper": 0.7000000000000001,
+          "count": 77,
+          "accuracy": 0.5974025974025974,
+          "confidence": 0.6481886560266669
+        },
+        {
+          "bin_lower": 0.7000000000000001,
+          "bin_upper": 0.8,
+          "count": 82,
+          "accuracy": 0.6829268292682927,
+          "confidence": 0.756270285786652
+        },
+        {
+          "bin_lower": 0.8,
+          "bin_upper": 0.9,
+          "count": 147,
+          "accuracy": 0.7142857142857143,
+          "confidence": 0.854776954975258
+        },
+        {
+          "bin_lower": 0.9,
+          "bin_upper": 1.0,
+          "count": 1185,
+          "accuracy": 0.9569620253164557,
+          "confidence": 0.98286500661182
+        }
+      ]
+    },
+    "learned_temperature": 0.9865225553512573,
+    "latency_ms_per_sample": 1.5383989375277451,
+    "artifacts": {
+      "confusion_matrix": "C:\\mri\\neuroscan-ai\\reports\\confusion_matrix_custom_cnn.png",
+      "roc_curves": "C:\\mri\\neuroscan-ai\\reports\\roc_curves_custom_cnn.png",
+      "calibration_curves": "C:\\mri\\neuroscan-ai\\reports\\calibration_curves_custom_cnn.png"
+    }
+  },
+  "resnet50": {
+    "metrics": {
+      "accuracy": 0.951875,
+      "macro_precision": 0.9549057536199161,
+      "macro_recall": 0.951875,
+      "macro_f1": 0.950773592044162,
+      "weighted_f1": 0.950773592044162,
+      "per_class": {
+        "glioma": {
+          "precision": 1.0,
+          "recall": 0.83,
+          "f1_score": 0.907103825136612,
+          "support": 400
+        },
+        "meningioma": {
+          "precision": 0.9178403755868545,
+          "recall": 0.9775,
+          "f1_score": 0.9467312348668281,
+          "support": 400
+        },
+        "no_tumor": {
+          "precision": 0.9237875288683602,
+          "recall": 1.0,
+          "f1_score": 0.9603841536614646,
+          "support": 400
+        },
+        "pituitary": {
+          "precision": 0.9779951100244498,
+          "recall": 1.0,
+          "f1_score": 0.9888751545117429,
+          "support": 400
+        }
+      },
+      "confusion_matrix": [
+        [
+          332,
+          35,
+          31,
+          2
+        ],
+        [
+          0,
+          391,
+          2,
+          7
+        ],
+        [
+          0,
+          0,
+          400,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          400
+        ]
+      ],
+      "total_samples": 1600,
+      "macro_roc_auc": 0.9844268229166666,
+      "per_class_roc_auc": {
+        "glioma": 0.9498729166666665,
+        "meningioma": 0.9907229166666667,
+        "no_tumor": 0.9971885416666667,
+        "pituitary": 0.9999229166666668
+      }
+    },
+    "raw_calibration": {
+      "expected_calibration_error": 0.03768084291368715,
+      "maximum_calibration_error": 0.49639472365379333,
+      "binned_calibration": [
+        {
+          "bin_lower": 0.0,
+          "bin_upper": 0.1,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.05
+        },
+        {
+          "bin_lower": 0.1,
+          "bin_upper": 0.2,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.15000000000000002
+        },
+        {
+          "bin_lower": 0.2,
+          "bin_upper": 0.30000000000000004,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.25
+        },
+        {
+          "bin_lower": 0.30000000000000004,
+          "bin_upper": 0.4,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.35000000000000003
+        },
+        {
+          "bin_lower": 0.4,
+          "bin_upper": 0.5,
+          "count": 2,
+          "accuracy": 0.0,
+          "confidence": 0.49639472365379333
+        },
+        {
+          "bin_lower": 0.5,
+          "bin_upper": 0.6000000000000001,
+          "count": 7,
+          "accuracy": 0.7142857142857143,
+          "confidence": 0.5514578478676933
+        },
+        {
+          "bin_lower": 0.6000000000000001,
+          "bin_upper": 0.7000000000000001,
+          "count": 8,
+          "accuracy": 0.625,
+          "confidence": 0.6614401191473007
+        },
+        {
+          "bin_lower": 0.7000000000000001,
+          "bin_upper": 0.8,
+          "count": 18,
+          "accuracy": 0.7777777777777778,
+          "confidence": 0.7412730819649167
+        },
+        {
+          "bin_lower": 0.8,
+          "bin_upper": 0.9,
+          "count": 33,
+          "accuracy": 0.5757575757575758,
+          "confidence": 0.855257536425735
+        },
+        {
+          "bin_lower": 0.9,
+          "bin_upper": 1.0,
+          "count": 1532,
+          "accuracy": 0.9660574412532638,
+          "confidence": 0.99737902086802
+        }
+      ]
+    },
+    "calibrated_calibration": {
+      "expected_calibration_error": 0.03534239113330849,
+      "maximum_calibration_error": 0.21761739434617944,
+      "binned_calibration": [
+        {
+          "bin_lower": 0.0,
+          "bin_upper": 0.1,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.05
+        },
+        {
+          "bin_lower": 0.1,
+          "bin_upper": 0.2,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.15000000000000002
+        },
+        {
+          "bin_lower": 0.2,
+          "bin_upper": 0.30000000000000004,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.25
+        },
+        {
+          "bin_lower": 0.30000000000000004,
+          "bin_upper": 0.4,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.35000000000000003
+        },
+        {
+          "bin_lower": 0.4,
+          "bin_upper": 0.5,
+          "count": 3,
+          "accuracy": 0.3333333333333333,
+          "confidence": 0.4885481397310893
+        },
+        {
+          "bin_lower": 0.5,
+          "bin_upper": 0.6000000000000001,
+          "count": 6,
+          "accuracy": 0.6666666666666666,
+          "confidence": 0.5553579529126486
+        },
+        {
+          "bin_lower": 0.6000000000000001,
+          "bin_upper": 0.7000000000000001,
+          "count": 13,
+          "accuracy": 0.6923076923076923,
+          "confidence": 0.6668755824749286
+        },
+        {
+          "bin_lower": 0.7000000000000001,
+          "bin_upper": 0.8,
+          "count": 18,
+          "accuracy": 0.6666666666666666,
+          "confidence": 0.7525404625468783
+        },
+        {
+          "bin_lower": 0.8,
+          "bin_upper": 0.9,
+          "count": 33,
+          "accuracy": 0.6363636363636364,
+          "confidence": 0.8539810307098158
+        },
+        {
+          "bin_lower": 0.9,
+          "bin_upper": 1.0,
+          "count": 1527,
+          "accuracy": 0.9666011787819253,
+          "confidence": 0.9969591416794253
+        }
+      ]
+    },
+    "learned_temperature": 1.0724436044692993,
+    "latency_ms_per_sample": 2.4423675624893804,
+    "artifacts": {
+      "confusion_matrix": "C:\\mri\\neuroscan-ai\\reports\\confusion_matrix_resnet50.png",
+      "roc_curves": "C:\\mri\\neuroscan-ai\\reports\\roc_curves_resnet50.png",
+      "calibration_curves": "C:\\mri\\neuroscan-ai\\reports\\calibration_curves_resnet50.png"
+    }
+  },
+  "densenet121": {
+    "metrics": {
+      "accuracy": 0.945625,
+      "macro_precision": 0.9489019966191646,
+      "macro_recall": 0.945625,
+      "macro_f1": 0.9444023862427513,
+      "weighted_f1": 0.9444023862427513,
+      "per_class": {
+        "glioma": {
+          "precision": 0.993920972644377,
+          "recall": 0.8175,
+          "f1_score": 0.897119341563786,
+          "support": 400
+        },
+        "meningioma": {
+          "precision": 0.9042056074766355,
+          "recall": 0.9675,
+          "f1_score": 0.9347826086956522,
+          "support": 400
+        },
+        "no_tumor": {
+          "precision": 0.9195402298850575,
+          "recall": 1.0,
+          "f1_score": 0.9580838323353293,
+          "support": 400
+        },
+        "pituitary": {
+          "precision": 0.9779411764705882,
+          "recall": 0.9975,
+          "f1_score": 0.9876237623762376,
+          "support": 400
+        }
+      },
+      "confusion_matrix": [
+        [
+          327,
+          41,
+          31,
+          1
+        ],
+        [
+          1,
+          387,
+          4,
+          8
+        ],
+        [
+          0,
+          0,
+          400,
+          0
+        ],
+        [
+          1,
+          0,
+          0,
+          399
+        ]
+      ],
+      "total_samples": 1600,
+      "macro_roc_auc": 0.9858372395833334,
+      "per_class_roc_auc": {
+        "glioma": 0.9516041666666668,
+        "meningioma": 0.9927072916666667,
+        "no_tumor": 0.9991541666666666,
+        "pituitary": 0.9998833333333333
+      }
+    },
+    "raw_calibration": {
+      "expected_calibration_error": 0.03818081427365537,
+      "maximum_calibration_error": 0.42344997823238373,
+      "binned_calibration": [
+        {
+          "bin_lower": 0.0,
+          "bin_upper": 0.1,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.05
+        },
+        {
+          "bin_lower": 0.1,
+          "bin_upper": 0.2,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.15000000000000002
+        },
+        {
+          "bin_lower": 0.2,
+          "bin_upper": 0.30000000000000004,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.25
+        },
+        {
+          "bin_lower": 0.30000000000000004,
+          "bin_upper": 0.4,
+          "count": 3,
+          "accuracy": 0.3333333333333333,
+          "confidence": 0.38344845175743103
+        },
+        {
+          "bin_lower": 0.4,
+          "bin_upper": 0.5,
+          "count": 2,
+          "accuracy": 0.0,
+          "confidence": 0.42344997823238373
+        },
+        {
+          "bin_lower": 0.5,
+          "bin_upper": 0.6000000000000001,
+          "count": 8,
+          "accuracy": 0.5,
+          "confidence": 0.5534837171435356
+        },
+        {
+          "bin_lower": 0.6000000000000001,
+          "bin_upper": 0.7000000000000001,
+          "count": 13,
+          "accuracy": 0.3076923076923077,
+          "confidence": 0.6579482463689951
+        },
+        {
+          "bin_lower": 0.7000000000000001,
+          "bin_upper": 0.8,
+          "count": 17,
+          "accuracy": 0.5882352941176471,
+          "confidence": 0.7540592200615827
+        },
+        {
+          "bin_lower": 0.8,
+          "bin_upper": 0.9,
+          "count": 35,
+          "accuracy": 0.5142857142857142,
+          "confidence": 0.8487153036253793
+        },
+        {
+          "bin_lower": 0.9,
+          "bin_upper": 1.0,
+          "count": 1522,
+          "accuracy": 0.9697766097240473,
+          "confidence": 0.9964433759646723
+        }
+      ]
+    },
+    "calibrated_calibration": {
+      "expected_calibration_error": 0.03644551903009411,
+      "maximum_calibration_error": 0.4342552721500397,
+      "binned_calibration": [
+        {
+          "bin_lower": 0.0,
+          "bin_upper": 0.1,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.05
+        },
+        {
+          "bin_lower": 0.1,
+          "bin_upper": 0.2,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.15000000000000002
+        },
+        {
+          "bin_lower": 0.2,
+          "bin_upper": 0.30000000000000004,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.25
+        },
+        {
+          "bin_lower": 0.30000000000000004,
+          "bin_upper": 0.4,
+          "count": 4,
+          "accuracy": 0.25,
+          "confidence": 0.38390008360147476
+        },
+        {
+          "bin_lower": 0.4,
+          "bin_upper": 0.5,
+          "count": 1,
+          "accuracy": 0.0,
+          "confidence": 0.4342552721500397
+        },
+        {
+          "bin_lower": 0.5,
+          "bin_upper": 0.6000000000000001,
+          "count": 9,
+          "accuracy": 0.5555555555555556,
+          "confidence": 0.5516797105471293
+        },
+        {
+          "bin_lower": 0.6000000000000001,
+          "bin_upper": 0.7000000000000001,
+          "count": 13,
+          "accuracy": 0.3076923076923077,
+          "confidence": 0.6528378312404339
+        },
+        {
+          "bin_lower": 0.7000000000000001,
+          "bin_upper": 0.8,
+          "count": 25,
+          "accuracy": 0.44,
+          "confidence": 0.7586461424827575
+        },
+        {
+          "bin_lower": 0.8,
+          "bin_upper": 0.9,
+          "count": 34,
+          "accuracy": 0.6764705882352942,
+          "confidence": 0.8556710481643677
+        },
+        {
+          "bin_lower": 0.9,
+          "bin_upper": 1.0,
+          "count": 1514,
+          "accuracy": 0.9702774108322325,
+          "confidence": 0.9958799413677251
+        }
+      ]
+    },
+    "learned_temperature": 1.0731432437896729,
+    "latency_ms_per_sample": 2.559717875010392,
+    "artifacts": {
+      "confusion_matrix": "C:\\mri\\neuroscan-ai\\reports\\confusion_matrix_densenet121.png",
+      "roc_curves": "C:\\mri\\neuroscan-ai\\reports\\roc_curves_densenet121.png",
+      "calibration_curves": "C:\\mri\\neuroscan-ai\\reports\\calibration_curves_densenet121.png"
+    }
+  },
+  "efficientnet_v2": {
+    "metrics": {
+      "accuracy": 0.941875,
+      "macro_precision": 0.9457905195079936,
+      "macro_recall": 0.941875,
+      "macro_f1": 0.9405861465171742,
+      "weighted_f1": 0.9405861465171742,
+      "per_class": {
+        "glioma": {
+          "precision": 0.99079754601227,
+          "recall": 0.8075,
+          "f1_score": 0.8898071625344353,
+          "support": 400
+        },
+        "meningioma": {
+          "precision": 0.9142857142857143,
+          "recall": 0.96,
+          "f1_score": 0.9365853658536586,
+          "support": 400
+        },
+        "no_tumor": {
+          "precision": 0.8928571428571429,
+          "recall": 1.0,
+          "f1_score": 0.9433962264150944,
+          "support": 400
+        },
+        "pituitary": {
+          "precision": 0.9852216748768473,
+          "recall": 1.0,
+          "f1_score": 0.9925558312655087,
+          "support": 400
+        }
+      },
+      "confusion_matrix": [
+        [
+          323,
+          36,
+          39,
+          2
+        ],
+        [
+          3,
+          384,
+          9,
+          4
+        ],
+        [
+          0,
+          0,
+          400,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          400
+        ]
+      ],
+      "total_samples": 1600,
+      "macro_roc_auc": 0.9873739583333334,
+      "per_class_roc_auc": {
+        "glioma": 0.9582375,
+        "meningioma": 0.9924104166666666,
+        "no_tumor": 0.9989208333333333,
+        "pituitary": 0.9999270833333334
+      }
+    },
+    "raw_calibration": {
+      "expected_calibration_error": 0.04023912586271762,
+      "maximum_calibration_error": 0.4940055310726166,
+      "binned_calibration": [
+        {
+          "bin_lower": 0.0,
+          "bin_upper": 0.1,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.05
+        },
+        {
+          "bin_lower": 0.1,
+          "bin_upper": 0.2,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.15000000000000002
+        },
+        {
+          "bin_lower": 0.2,
+          "bin_upper": 0.30000000000000004,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.25
+        },
+        {
+          "bin_lower": 0.30000000000000004,
+          "bin_upper": 0.4,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.35000000000000003
+        },
+        {
+          "bin_lower": 0.4,
+          "bin_upper": 0.5,
+          "count": 2,
+          "accuracy": 0.0,
+          "confidence": 0.4940055310726166
+        },
+        {
+          "bin_lower": 0.5,
+          "bin_upper": 0.6000000000000001,
+          "count": 16,
+          "accuracy": 0.25,
+          "confidence": 0.5616232864558697
+        },
+        {
+          "bin_lower": 0.6000000000000001,
+          "bin_upper": 0.7000000000000001,
+          "count": 10,
+          "accuracy": 0.5,
+          "confidence": 0.655474853515625
+        },
+        {
+          "bin_lower": 0.7000000000000001,
+          "bin_upper": 0.8,
+          "count": 21,
+          "accuracy": 0.38095238095238093,
+          "confidence": 0.7532532300267901
+        },
+        {
+          "bin_lower": 0.8,
+          "bin_upper": 0.9,
+          "count": 35,
+          "accuracy": 0.6,
+          "confidence": 0.8500225663185119
+        },
+        {
+          "bin_lower": 0.9,
+          "bin_upper": 1.0,
+          "count": 1516,
+          "accuracy": 0.9689973614775725,
+          "confidence": 0.9955704231847244
+        }
+      ]
+    },
+    "calibrated_calibration": {
+      "expected_calibration_error": 0.038649016562849275,
+      "maximum_calibration_error": 0.37438831478357315,
+      "binned_calibration": [
+        {
+          "bin_lower": 0.0,
+          "bin_upper": 0.1,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.05
+        },
+        {
+          "bin_lower": 0.1,
+          "bin_upper": 0.2,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.15000000000000002
+        },
+        {
+          "bin_lower": 0.2,
+          "bin_upper": 0.30000000000000004,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.25
+        },
+        {
+          "bin_lower": 0.30000000000000004,
+          "bin_upper": 0.4,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.35000000000000003
+        },
+        {
+          "bin_lower": 0.4,
+          "bin_upper": 0.5,
+          "count": 3,
+          "accuracy": 0.3333333333333333,
+          "confidence": 0.489622304836909
+        },
+        {
+          "bin_lower": 0.5,
+          "bin_upper": 0.6000000000000001,
+          "count": 16,
+          "accuracy": 0.1875,
+          "confidence": 0.5618883147835732
+        },
+        {
+          "bin_lower": 0.6000000000000001,
+          "bin_upper": 0.7000000000000001,
+          "count": 12,
+          "accuracy": 0.5,
+          "confidence": 0.6612317611773809
+        },
+        {
+          "bin_lower": 0.7000000000000001,
+          "bin_upper": 0.8,
+          "count": 21,
+          "accuracy": 0.38095238095238093,
+          "confidence": 0.753491481145223
+        },
+        {
+          "bin_lower": 0.8,
+          "bin_upper": 0.9,
+          "count": 40,
+          "accuracy": 0.65,
+          "confidence": 0.8508863478899003
+        },
+        {
+          "bin_lower": 0.9,
+          "bin_upper": 1.0,
+          "count": 1508,
+          "accuracy": 0.9701591511936339,
+          "confidence": 0.9950834153817882
+        }
+      ]
+    },
+    "learned_temperature": 1.0582704544067383,
+    "latency_ms_per_sample": 2.2464319374830666,
+    "artifacts": {
+      "confusion_matrix": "C:\\mri\\neuroscan-ai\\reports\\confusion_matrix_efficientnet_v2.png",
+      "roc_curves": "C:\\mri\\neuroscan-ai\\reports\\roc_curves_efficientnet_v2.png",
+      "calibration_curves": "C:\\mri\\neuroscan-ai\\reports\\calibration_curves_efficientnet_v2.png"
+    }
+  },
+  "ensemble": {
+    "metrics": {
+      "accuracy": 0.951875,
+      "macro_precision": 0.9552353035348784,
+      "macro_recall": 0.951875,
+      "macro_f1": 0.950802125541905,
+      "weighted_f1": 0.9508021255419049,
+      "per_class": {
+        "glioma": {
+          "precision": 1.0,
+          "recall": 0.8275,
+          "f1_score": 0.905608755129959,
+          "support": 400
+        },
+        "meningioma": {
+          "precision": 0.9116279069767442,
+          "recall": 0.98,
+          "f1_score": 0.944578313253012,
+          "support": 400
+        },
+        "no_tumor": {
+          "precision": 0.9216589861751152,
+          "recall": 1.0,
+          "f1_score": 0.9592326139088729,
+          "support": 400
+        },
+        "pituitary": {
+          "precision": 0.9876543209876543,
+          "recall": 1.0,
+          "f1_score": 0.9937888198757764,
+          "support": 400
+        }
+      },
+      "confusion_matrix": [
+        [
+          331,
+          38,
+          31,
+          0
+        ],
+        [
+          0,
+          392,
+          3,
+          5
+        ],
+        [
+          0,
+          0,
+          400,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          400
+        ]
+      ],
+      "total_samples": 1600,
+      "macro_roc_auc": 0.9882729166666666,
+      "per_class_roc_auc": {
+        "glioma": 0.9585875,
+        "meningioma": 0.9951375,
+        "no_tumor": 0.9993979166666667,
+        "pituitary": 0.99996875
+      }
+    },
+    "raw_calibration": {
+      "expected_calibration_error": 0.029731620283755804,
+      "maximum_calibration_error": 0.45570005533614727,
+      "binned_calibration": [
+        {
+          "bin_lower": 0.0,
+          "bin_upper": 0.1,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.05
+        },
+        {
+          "bin_lower": 0.1,
+          "bin_upper": 0.2,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.15000000000000002
+        },
+        {
+          "bin_lower": 0.2,
+          "bin_upper": 0.30000000000000004,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.25
+        },
+        {
+          "bin_lower": 0.30000000000000004,
+          "bin_upper": 0.4,
+          "count": 0,
+          "accuracy": 0.0,
+          "confidence": 0.35000000000000003
+        },
+        {
+          "bin_lower": 0.4,
+          "bin_upper": 0.5,
+          "count": 2,
+          "accuracy": 0.0,
+          "confidence": 0.45570005533614727
+        },
+        {
+          "bin_lower": 0.5,
+          "bin_upper": 0.6000000000000001,
+          "count": 11,
+          "accuracy": 0.36363636363636365,
+          "confidence": 0.5455785512617529
+        },
+        {
+          "bin_lower": 0.6000000000000001,
+          "bin_upper": 0.7000000000000001,
+          "count": 23,
+          "accuracy": 0.6956521739130435,
+          "confidence": 0.6430127394698879
+        },
+        {
+          "bin_lower": 0.7000000000000001,
+          "bin_upper": 0.8,
+          "count": 24,
+          "accuracy": 0.4583333333333333,
+          "confidence": 0.7633437223915512
+        },
+        {
+          "bin_lower": 0.8,
+          "bin_upper": 0.9,
+          "count": 41,
+          "accuracy": 0.6585365853658537,
+          "confidence": 0.8539291608835126
+        },
+        {
+          "bin_lower": 0.9,
+          "bin_upper": 1.0,
+          "count": 1499,
+          "accuracy": 0.9773182121414277,
+          "confidence": 0.9960745672806164
+        }
+      ]
+    },
+    "weights": {
+      "custom_cnn": 0.0,
+      "resnet50": 0.586,
+      "densenet121": 0.2449,
+      "efficientnet_v2": 0.1691
+    },
+    "disagreement": {
+      "categorical_disagreement_rate": 0.126875,
+      "mean_jensen_shannon_divergence": 0.035015673209308505,
+      "mean_prediction_variance": 0.007587916061056965,
+      "disagreement_count": 203,
+      "total_samples": 1600
+    },
+    "latency_ms_per_sample": 8.786916312510584,
+    "artifacts": {
+      "confusion_matrix": "C:\\mri\\neuroscan-ai\\reports\\confusion_matrix_ensemble.png",
+      "roc_curves": "C:\\mri\\neuroscan-ai\\reports\\roc_curves_ensemble.png",
+      "calibration_curves": "C:\\mri\\neuroscan-ai\\reports\\calibration_curves_ensemble.png"
+    }
+  }
+}

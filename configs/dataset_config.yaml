@@ -1,0 +1,68 @@
+# NeuroScan AI - Dataset and Pipeline Configuration
+project_name: "neuroscan-ai"
+version: "1.0.0"
+seed: 42
+
+dataset:
+  # Base dataset directory relative to project root or environment variable override
+  # Can be overridden by NEUROSCAN_DATA_DIR or DATASET_PATH
+  raw_dir: "data/archive"
+  processed_dir: "data/processed"
+  reports_dir: "reports"
+  
+  # Four-class classification
+  classes:
+    - glioma
+    - meningioma
+    - notumor
+    - pituitary
+    
+  # Canonical alias mapping to standardize naming across dataset versions
+  class_aliases:
+    glioma: "glioma"
+    meningioma: "meningioma"
+    pituitary: "pituitary"
+    notumor: "no_tumor"
+    no_tumor: "no_tumor"
+
+  # Directory layout expected:
+  # <data_dir>/Training/<class_name>/*.jpg
+  # <data_dir>/Testing/<class_name>/*.jpg
+  train_folder: "Training"
+  test_folder: "Testing"
+
+  # Splitting configuration
+  validation_split_ratio: 0.20  # Carved out from Training split; Testing split remains completely untouched
+  stratified: true
+  use_group_split: false        # Set true if patient identifiers are detected
+
+preprocessing:
+  image_size: [224, 224]        # Standard input dimension [H, W]
+  in_channels: 3               # MRI converted to 3-channel RGB for pre-trained backbones
+  crop_brain_contour: true     # Automatically crop excess black background using OpenCV contour detection
+  
+  # Normalization parameters (ImageNet default for transfer learning)
+  normalize:
+    mean: [0.485, 0.456, 0.406]
+    std: [0.229, 0.224, 0.225]
+
+augmentation:
+  train:
+    horizontal_flip_prob: 0.5
+    rotation_degrees: 15
+    affine_translation: [0.05, 0.05]
+  val_test:
+    # Deterministic preprocessing without random augmentations
+    enabled: false
+
+hardware:
+  device: "auto"               # 'auto', 'cuda', or 'cpu'
+  num_workers: 2
+  pin_memory: true
+  batch_size: 32
+
+duplicate_detection:
+  exact_hash: "md5"
+  enable_perceptual_hash: true
+  perceptual_hash_size: 8
+  hamming_distance_threshold: 4 # Threshold for flagging potential near duplicates

@@ -1,0 +1,4 @@
+policy_name,n_samples,mean_simulated_reward,auto_report_rate,second_view_rate,escalation_rate,action_counts,tumor_catch_rate,glioma_escalation_rate,tumor_leak_rate,inappropriate_tumor_auto_reports,inappropriate_glioma_auto_reports
+Fixed-Threshold Baseline,400,-13.875,0.7375,0.16,0.1025,"{'AUTO_REPORT': 295, 'SECOND_VIEW': 64, 'ESCALATE': 41}",0.3148,0.1717,0.6852,209,64
+Rule-Based Safety Policy,400,-5.899,0.5625,0.04,0.3975,"{'AUTO_REPORT': 225, 'SECOND_VIEW': 16, 'ESCALATE': 159}",0.5574,0.9394,0.4426,135,1
+Learned SB3 DQN Policy,400,3.816,0.23,0.0475,0.7225,"{'AUTO_REPORT': 92, 'SECOND_VIEW': 19, 'ESCALATE': 289}",0.9967,0.899,0.0033,1,1

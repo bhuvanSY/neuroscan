@@ -1,0 +1,59 @@
+{
+  "disclaimer": "This triage evaluation is a simulation-based algorithmic benchmark. In the absence of prospectively validated multicenter clinical trials and board-certified expert action labels, this system serves as a decision-support prototype and must NOT be used for autonomous medical triage.",
+  "policies": [
+    {
+      "policy_name": "Fixed-Threshold Baseline",
+      "n_samples": 400,
+      "mean_simulated_reward": -13.875,
+      "auto_report_rate": 0.7375,
+      "second_view_rate": 0.16,
+      "escalation_rate": 0.1025,
+      "action_counts": {
+        "AUTO_REPORT": 295,
+        "SECOND_VIEW": 64,
+        "ESCALATE": 41
+      },
+      "tumor_catch_rate": 0.3148,
+      "glioma_escalation_rate": 0.1717,
+      "tumor_leak_rate": 0.6852,
+      "inappropriate_tumor_auto_reports": 209,
+      "inappropriate_glioma_auto_reports": 64
+    },
+    {
+      "policy_name": "Rule-Based Safety Policy",
+      "n_samples": 400,
+      "mean_simulated_reward": -5.899,
+      "auto_report_rate": 0.5625,
+      "second_view_rate": 0.04,
+      "escalation_rate": 0.3975,
+      "action_counts": {
+        "AUTO_REPORT": 225,
+        "SECOND_VIEW": 16,
+        "ESCALATE": 159
+      },
+      "tumor_catch_rate": 0.5574,
+      "glioma_escalation_rate": 0.9394,
+      "tumor_leak_rate": 0.4426,
+      "inappropriate_tumor_auto_reports": 135,
+      "inappropriate_glioma_auto_reports": 1
+    },
+    {
+      "policy_name": "Learned SB3 DQN Policy",
+      "n_samples": 400,
+      "mean_simulated_reward": 3.816,
+      "auto_report_rate": 0.23,
+      "second_view_rate": 0.0475,
+      "escalation_rate": 0.7225,
+      "action_counts": {
+        "AUTO_REPORT": 92,
+        "SECOND_VIEW": 19,
+        "ESCALATE": 289
+      },
+      "tumor_catch_rate": 0.9967,
+      "glioma_escalation_rate": 0.899,
+      "tumor_leak_rate": 0.0033,
+      "inappropriate_tumor_auto_reports": 1,
+      "inappropriate_glioma_auto_reports": 1
+    }
+  ]
+}

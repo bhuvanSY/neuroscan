@@ -1,0 +1,35 @@
+{
+  "timesteps": 15000,
+  "seed": 42,
+  "observation_dim": 35,
+  "action_space": [
+    "AUTO_REPORT",
+    "SECOND_VIEW",
+    "ESCALATE"
+  ],
+  "hyperparameters": {
+    "learning_rate": 0.0005,
+    "buffer_size": 20000,
+    "learning_starts": 500,
+    "batch_size": 64,
+    "tau": 1.0,
+    "gamma": 0.95,
+    "train_freq": 4,
+    "gradient_steps": 1,
+    "target_update_interval": 250,
+    "exploration_fraction": 0.4,
+    "exploration_initial_eps": 1.0,
+    "exploration_final_eps": 0.05,
+    "seed": 42,
+    "verbose": 0
+  },
+  "action_counts": {
+    "0": 3738,
+    "1": 1312,
+    "2": 9950
+  },
+  "episodes_completed": 150,
+  "mean_episode_reward": 136.33,
+  "policy_path": "C:\\mri\\neuroscan-ai\\checkpoints\\dqn_triage_policy.zip",
+  "scaler_path": "C:\\mri\\neuroscan-ai\\reports\\rl_observation_scaler.json"
+}

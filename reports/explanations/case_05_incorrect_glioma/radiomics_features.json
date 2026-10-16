@@ -1,0 +1,122 @@
+{
+  "features": {
+    "intensity_mean": 37.2781,
+    "intensity_std": 42.2884,
+    "intensity_skewness": 1.3436,
+    "intensity_kurtosis": 2.0973,
+    "glcm_contrast": 3.6232,
+    "glcm_homogeneity": 0.7554,
+    "glcm_energy": 0.3105,
+    "glcm_correlation": 0.9839,
+    "image_entropy": 5.9055,
+    "canny_edge_density": 0.040665,
+    "foreground_area": 104804.0,
+    "foreground_perimeter": 2353.77,
+    "circularity": 0.2778,
+    "eccentricity": 0.4867,
+    "box_counting_fractal_dimension": 1.449
+  },
+  "definitions": {
+    "intensity_mean": {
+      "definition": "Mean pixel luminance across the brain MRI slice.",
+      "category": "First-Order Intensity",
+      "range": "[0.0, 255.0]",
+      "clinical_note": "Reflects baseline overall scan exposure and bulk tissue signal intensity."
+    },
+    "intensity_std": {
+      "definition": "Standard deviation of pixel intensities.",
+      "category": "First-Order Intensity",
+      "range": "[0.0, 128.0]",
+      "clinical_note": "Measures intensity dispersion and macroscopic tissue contrast variability."
+    },
+    "intensity_skewness": {
+      "definition": "Fisher-Pearson standardized skewness coefficient.",
+      "category": "First-Order Intensity",
+      "range": "(-inf, +inf)",
+      "clinical_note": "Quantifies asymmetry: positive skew indicates predominance of hyperintense signals."
+    },
+    "intensity_kurtosis": {
+      "definition": "Excess kurtosis of the pixel intensity distribution.",
+      "category": "First-Order Intensity",
+      "range": "[-2.0, +inf)",
+      "clinical_note": "High kurtosis indicates heavy-tailed distribution with concentrated focal intensities."
+    },
+    "glcm_contrast": {
+      "definition": "Mean spatial Gray-Level Co-occurrence Matrix (GLCM) contrast.",
+      "category": "GLCM Texture",
+      "range": "[0.0, inf)",
+      "clinical_note": "Reflects local textural variation between neighboring voxels; high in heterogeneous lesions."
+    },
+    "glcm_homogeneity": {
+      "definition": "Mean GLCM Inverse Difference Moment (IDM).",
+      "category": "GLCM Texture",
+      "range": "[0.0, 1.0]",
+      "clinical_note": "Measures textural uniformity; high in uniform cerebrospinal fluid or homogenous white matter."
+    },
+    "glcm_energy": {
+      "definition": "Mean GLCM Angular Second Moment (ASM).",
+      "category": "GLCM Texture",
+      "range": "[0.0, 1.0]",
+      "clinical_note": "Measures repetition of pixel pairs; approaches 1 for uniform constant regions."
+    },
+    "glcm_correlation": {
+      "definition": "Mean GLCM linear dependency of gray levels.",
+      "category": "GLCM Texture",
+      "range": "[-1.0, 1.0]",
+      "clinical_note": "Quantifies directional linear predictability between neighboring voxel intensities."
+    },
+    "image_entropy": {
+      "definition": "Shannon entropy of the grayscale intensity histogram (bits/pixel).",
+      "category": "Information Theory",
+      "range": "[0.0, 8.0]",
+      "clinical_note": "Reflects information density and randomness; higher in micro-architecturally complex tissues."
+    },
+    "canny_edge_density": {
+      "definition": "Fraction of pixels marked as structural edges via Canny detector.",
+      "category": "Structural / Edge",
+      "range": "[0.0, 1.0]",
+      "clinical_note": "Measures border complexity, anatomical boundaries, and internal tumor vascular margin density."
+    },
+    "foreground_area": {
+      "definition": "Pixel count of the Otsu-thresholded intracranial tissue mask.",
+      "category": "Morphological / Shape",
+      "range": "[0, H*W]",
+      "clinical_note": "Exploratory 2D area proxy; NOT a true 3D lesion volume."
+    },
+    "foreground_perimeter": {
+      "definition": "Boundary arc length in pixels of the dominant foreground tissue contour.",
+      "category": "Morphological / Shape",
+      "range": "[0.0, inf)",
+      "clinical_note": "Perimeter length of the primary contour."
+    },
+    "circularity": {
+      "definition": "Isoperimetric quotient: 4 * pi * Area / (Perimeter^2).",
+      "category": "Morphological / Shape",
+      "range": "[0.0, 1.0]",
+      "clinical_note": "Approaches 1.0 for circular geometries (e.g. pituitary adenomas), lower for irregular infiltrative margins."
+    },
+    "eccentricity": {
+      "definition": "Eccentricity of the equivalent fitted ellipse.",
+      "category": "Morphological / Shape",
+      "range": "[0.0, 1.0]",
+      "clinical_note": "0 indicates round shape; higher values signify elongation or axis elongation."
+    },
+    "box_counting_fractal_dimension": {
+      "definition": "Estimated box-counting Hausdorff dimension of thresholded edges.",
+      "category": "Complexity / Fractal",
+      "range": "[0.0, 2.0]",
+      "clinical_note": "Measures boundary fractal roughness and infiltrative edge irregularities."
+    }
+  },
+  "metadata": {
+    "dimensions": [
+      512,
+      512
+    ],
+    "total_pixels": 262144,
+    "foreground_pixel_ratio": 0.3998,
+    "is_empty": false,
+    "is_constant": false
+  },
+  "disclaimer": "Image-level features represent exploratory 2D slice intensity and morphological descriptors. They do NOT establish true 3D tumor volume or validated clinical radiomic biomarkers."
+}

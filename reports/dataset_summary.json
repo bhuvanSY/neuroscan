@@ -1,0 +1,55 @@
+{
+  "dataset_present": true,
+  "dataset_path": "C:\\mri\\neuroscan-ai\\data\\archive",
+  "total_valid_images": 7200,
+  "valid_images_per_class": {
+    "glioma": 1800,
+    "meningioma": 1800,
+    "no_tumor": 1800,
+    "pituitary": 1800
+  },
+  "class_split_breakdown": {
+    "test": {
+      "glioma": 400,
+      "meningioma": 400,
+      "no_tumor": 400,
+      "pituitary": 400
+    },
+    "train": {
+      "glioma": 1120,
+      "meningioma": 1120,
+      "no_tumor": 1120,
+      "pituitary": 1120
+    },
+    "val": {
+      "glioma": 280,
+      "meningioma": 280,
+      "no_tumor": 280,
+      "pituitary": 280
+    }
+  },
+  "training_set_stats": {
+    "mean": [
+      0.172,
+      0.172,
+      0.172
+    ],
+    "std": [
+      0.1868,
+      0.1868,
+      0.1868
+    ]
+  },
+  "corrupt_files_count": 0,
+  "corrupt_files": [],
+  "empty_directories": [],
+  "unrecognized_classes": [],
+  "duplicate_summary": {
+    "exact_duplicate_groups": 153,
+    "exact_cross_split_leakage": 78,
+    "near_duplicate_pairs": 79771,
+    "near_cross_split_leakage": 42684
+  },
+  "patient_id_available": false,
+  "patient_id_limitation_documented": "CRITICAL CLINICAL GENERALIZATION NOTE: The Masoud Nickparvar Kaggle Brain Tumor MRI dataset consists of pre-sliced 2D images (e.g., Tr-gl_0010.jpg, Te-me_0023.jpg) lacking clinical subject identifiers or DICOM metadata tags. Because slices from the same subject cannot be grouped by patient, image-level separation does NOT establish patient-level generalization. Performance on this benchmark represents slice-level categorization accuracy; perceptual hashing and near-duplicate cross-split checks are enforced to mitigate direct slice leakage."
+}
