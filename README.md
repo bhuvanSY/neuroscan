@@ -4,7 +4,10 @@
 [![PyTorch 2.14+cu126](https://img.shields.io/badge/PyTorch-2.14%20(CUDA%20RTX%204050)-EE4C2C.svg)](https://pytorch.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg)](https://fastapi.tiangolo.com/)
 [![React 19](https://img.shields.io/badge/React-19.0.0-61DAFB.svg)](https://react.dev/)
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Live%20Production-black?logo=vercel)](https://frontend-weld-eight-88.vercel.app)
 [![Tests](https://img.shields.io/badge/Pytest-102%20Passed-brightgreen.svg)](https://docs.pytest.org/)
+
+**Live Production Web App:** [https://frontend-weld-eight-88.vercel.app](https://frontend-weld-eight-88.vercel.app)
 
 NeuroScan AI is a research decision-support platform designed to evaluate deep learning explainability and reinforcement learning-driven clinical review triage for brain tumor magnetic resonance imaging (MRI).
 
