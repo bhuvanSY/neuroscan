@@ -51,15 +51,20 @@ graph TD
 
 ## 2. Model Checkpoints & Benchmark Evaluation
 
-All models were evaluated on the untouched 1,600 held-out Kaggle test partition (400 glioma, 400 meningioma, 400 no tumor, 400 pituitary):
+All models were trained strictly from scratch (30 epochs, patience 20) and benchmarked across both the validation tuning partition (1,142 scans) and the quarantined held-out test partition (1,600 scans: 400 glioma, 400 meningioma, 400 no tumor, 400 pituitary):
 
-| Model Architecture | Parameters | Test Accuracy | Macro Precision | Macro Recall | Macro-F1 | Macro ROC-AUC | Raw ECE | Calibrated ECE | Latency (ms) | Checkpoint Artifact |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| **Custom CNN** | 4.85M | 86.56% | 0.8745 | 0.8656 | 0.8619 | 0.9703 | 0.0445 | 0.0460 | 1.54 ms | [`checkpoints/custom_cnn_best.pt`](file:///c:/mri/neuroscan-ai/checkpoints/custom_cnn_best.pt) |
-| **ResNet-50** | 23.52M | **95.19%** | 0.9549 | **0.9519** | **0.9508** | 0.9844 | 0.0377 | 0.0353 | 2.44 ms | [`checkpoints/resnet50_best.pt`](file:///c:/mri/neuroscan-ai/checkpoints/resnet50_best.pt) |
-| **DenseNet-121** | 6.96M | 94.56% | 0.9489 | 0.9456 | 0.9444 | 0.9858 | 0.0382 | 0.0364 | 2.56 ms | [`checkpoints/densenet121_best.pt`](file:///c:/mri/neuroscan-ai/checkpoints/densenet121_best.pt) |
-| **EfficientNetV2-S** | 20.18M | 94.19% | 0.9458 | 0.9419 | 0.9406 | 0.9874 | 0.0402 | 0.0386 | 2.25 ms | [`checkpoints/efficientnet_v2_best.pt`](file:///c:/mri/neuroscan-ai/checkpoints/efficientnet_v2_best.pt) |
-| **Weighted Ensemble** | — | **95.19%** | **0.9552** | **0.9519** | **0.9508** | **0.9883** | **0.0297** | **0.0297** | 8.79 ms | Configured in [`src/api/app.py`](file:///c:/mri/neuroscan-ai/src/api/app.py) |
+| Model Architecture | Parameters | Best Val Acc | Best Val F1 | Test Acc | Macro Precision | Macro Recall | Test Macro-F1 | Macro ROC-AUC | Raw ECE | Latency | Checkpoint Artifact |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
+| **Custom CNN** | 4.85M | **92.05%** | 0.9202 | **86.56%** | 0.8745 | 0.8656 | 0.8619 | 0.9703 | 0.0445 | 1.54 ms | [`checkpoints/custom_cnn_best.pt`](file:///c:/mri/neuroscan-ai/checkpoints/custom_cnn_best.pt) |
+| **ResNet-50** | 23.52M | **98.66%** | 0.9866 | **95.19%** | 0.9549 | 0.9519 | 0.9508 | 0.9844 | 0.0377 | 2.44 ms | [`checkpoints/resnet50_best.pt`](file:///c:/mri/neuroscan-ai/checkpoints/resnet50_best.pt) |
+| **DenseNet-121** | 6.96M | **98.93%** | 0.9893 | **94.56%** | 0.9489 | 0.9456 | 0.9444 | 0.9858 | 0.0382 | 2.56 ms | [`checkpoints/densenet121_best.pt`](file:///c:/mri/neuroscan-ai/checkpoints/densenet121_best.pt) |
+| **EfficientNetV2-S** | 20.18M | **98.39%** | 0.9839 | **94.19%** | 0.9458 | 0.9419 | 0.9406 | 0.9874 | 0.0402 | 2.25 ms | [`checkpoints/efficientnet_v2_best.pt`](file:///c:/mri/neuroscan-ai/checkpoints/efficientnet_v2_best.pt) |
+| **Weighted Ensemble** | — | — | — | **95.19%** | **0.9552** | **0.9519** | **0.9508** | **0.9883** | **0.0297** | 8.79 ms | Configured in [`src/api/app.py`](file:///c:/mri/neuroscan-ai/src/api/app.py) |
+
+> [!NOTE]
+> **Understanding Validation vs. Test Metrics**:
+> - **Validation Metrics (Val Acc: 92.05% - 98.93%)**: Reported in the terminal during training epochs. Used to checkpoint the best weights (`_best.pt`) and optimize ensemble soft-voting weights.
+> - **Test Metrics (Test Acc: 86.56% - 95.19%)**: Evaluated by `python -m src.evaluation.evaluate_models` on 1,600 quarantined, unseen test scans to verify strict clinical generalization without data leakage.
 
 ### Class-Specific Breakdown (F1-Scores on Test Cohort)
 
@@ -70,9 +75,6 @@ All models were evaluated on the untouched 1,600 held-out Kaggle test partition 
 | **DenseNet-121** | 0.8971 | 0.9348 | 0.9581 | 0.9876 | 0.9444 |
 | **EfficientNetV2-S** | 0.8898 | 0.9366 | 0.9434 | 0.9926 | 0.9406 |
 | **Weighted Ensemble** | 0.9056 | 0.9446 | 0.9592 | **0.9938** | **0.9508** |
-
-> [!NOTE]
-> **Full Scratch-Trained Convergence Achieved**: Training models with extended convergence schedules (30 epochs with early stopping patience of 20) yields robust convergence across all topologies. Both **ResNet-50** and **Weighted Ensemble** reach **95.19% test accuracy**, with **EfficientNetV2-S** reaching **94.19%** and **Custom CNN** reaching **86.56%**.
 
 ### Ensemble Weights & Uncertainty Metrics
 - **Optimal Weights (Validation Tuning)**: `resnet50`: 0.5860, `densenet121`: 0.2449, `efficientnet_v2`: 0.1691, `custom_cnn`: 0.0000.
