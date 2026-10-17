@@ -97,3 +97,7 @@ reports/duplicate_analysis.json
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Tunnel tools
+tools/
+*.exe

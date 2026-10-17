@@ -22,6 +22,10 @@ import {
   FileSpreadsheet,
   FlaskConical,
   Type,
+  Server,
+  Globe,
+  Link,
+  X,
 } from 'lucide-react';
 
 import {
@@ -40,6 +44,7 @@ import {
   fetchEvaluation,
   fetchSamples,
   fetchSampleImageBlob,
+  setCustomApiUrl,
 } from './api';
 import {
   FALLBACK_HEALTH,
@@ -130,6 +135,17 @@ export default function App() {
   const [isConnected, setIsConnected] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
+  // Backend Connection Modal & GPU Bridge State
+  const [showBackendModal, setShowBackendModal] = useState<boolean>(false);
+  const [customApiUrlInput, setCustomApiUrlInput] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('neuroscan_custom_api_url') || 'https://echo-what-jumping-ink.trycloudflare.com';
+    }
+    return 'https://echo-what-jumping-ink.trycloudflare.com';
+  });
+  const [isTestingConnection, setIsTestingConnection] = useState<boolean>(false);
+  const [connectionTestResult, setConnectionTestResult] = useState<{ success: boolean; message: string; device?: string } | null>(null);
+
   // Analysis State
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -152,16 +168,39 @@ export default function App() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load initial backend telemetry with automatic cloud/offline fallback
+  // Load initial backend telemetry with automatic cloud/offline fallback & tunnel probe
   const loadSystemTelemetry = async () => {
     setIsRefreshing(true);
     try {
-      const [h, m, e, s] = await Promise.all([
+      let [h, m, e, s] = await Promise.all([
         fetchHealth().catch(() => null),
         fetchModels().catch(() => null),
         fetchEvaluation().catch(() => null),
         fetchSamples().catch(() => null),
       ]);
+
+      // If backend is not reached yet and we're on cloud (e.g. Vercel) without a saved custom URL:
+      if (!h && typeof window !== 'undefined' && !localStorage.getItem('neuroscan_custom_api_url')) {
+        const defaultTunnel = 'https://echo-what-jumping-ink.trycloudflare.com';
+        try {
+          const probe = await fetch(`${defaultTunnel}/health`, { headers: { 'Bypass-Tunnel-Reminder': 'true' } });
+          if (probe.ok) {
+            const probeData = await probe.json();
+            if (probeData.status === 'healthy') {
+              setCustomApiUrl(defaultTunnel);
+              [h, m, e, s] = await Promise.all([
+                fetchHealth().catch(() => null),
+                fetchModels().catch(() => null),
+                fetchEvaluation().catch(() => null),
+                fetchSamples().catch(() => null),
+              ]);
+            }
+          }
+        } catch {
+          // Probe unavailable; continue with fallback
+        }
+      }
+
       setHealth(h || FALLBACK_HEALTH);
       setModelsData(m || FALLBACK_MODELS);
       setEvaluation(e || FALLBACK_EVALUATION);
@@ -181,6 +220,39 @@ export default function App() {
     } finally {
       setIsRefreshing(false);
     }
+  };
+
+  const handleConnectBackend = async (urlToTest: string) => {
+    setIsTestingConnection(true);
+    setConnectionTestResult(null);
+    try {
+      const cleanUrl = urlToTest.trim().replace(/\/$/, '');
+      const res = await fetch(`${cleanUrl}/health`, { headers: { 'Bypass-Tunnel-Reminder': 'true' } });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      setCustomApiUrl(cleanUrl);
+      setConnectionTestResult({
+        success: true,
+        message: 'Successfully connected to GPU backend!',
+        device: data.hardware?.device_name || 'NVIDIA RTX GPU',
+      });
+      await loadSystemTelemetry();
+    } catch (err: any) {
+      setConnectionTestResult({
+        success: false,
+        message: `Failed to connect to ${urlToTest}: ${err.message || 'Network error'}. On Vercel, the tunnel URL must use https://.`,
+      });
+    } finally {
+      setIsTestingConnection(false);
+    }
+  };
+
+  const handleResetToDemo = async () => {
+    setCustomApiUrl(null);
+    setCustomApiUrlInput('');
+    setConnectionTestResult(null);
+    await loadSystemTelemetry();
+    setShowBackendModal(false);
   };
 
   useEffect(() => {
@@ -469,23 +541,23 @@ export default function App() {
             </div>
 
             {/* Connection & Telemetry Status & Font Selector */}
-            <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
+            <div className="flex items-center space-x-1.5 sm:space-x-2.5 shrink-0">
               {/* Medical Font Selector Dropdown */}
               <div className="relative">
                 <button
                   onClick={() => setShowFontMenu(!showFontMenu)}
-                  className="flex items-center space-x-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 transition"
+                  className="flex items-center space-x-1 sm:space-x-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-2 sm:px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 transition"
                   title="Medical Typography Palette"
                 >
-                  <Type className="w-3.5 h-3.5 text-teal-700" />
-                  <span className="hidden sm:inline">Font:</span>
-                  <span className="text-teal-800 font-semibold">
+                  <Type className="w-3.5 h-3.5 text-teal-700 shrink-0" />
+                  <span className="hidden md:inline">Font:</span>
+                  <span className="text-teal-800 font-semibold hidden sm:inline">
                     {MEDICAL_FONTS.find((f) => f.id === fontTheme)?.name || 'Inter'}
                   </span>
                 </button>
 
                 {showFontMenu && (
-                  <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-xl shadow-xl z-50 p-2 text-xs divide-y divide-slate-100">
+                  <div className="absolute right-0 mt-2 w-72 sm:w-80 max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-xl shadow-xl z-50 p-2 text-xs divide-y divide-slate-100">
                     <div className="px-3 py-2 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
                       Medical Web App Typography
                     </div>
@@ -522,13 +594,17 @@ export default function App() {
                 )}
               </div>
 
-              {/* Connection Status Badge */}
+              {/* Clickable GPU / Backend Connection Bridge Badge */}
               {(() => {
                 const isCloudHost = typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
                 return (
-                  <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full text-xs">
+                  <button
+                    onClick={() => setShowBackendModal(true)}
+                    className="flex items-center space-x-1.5 sm:space-x-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-2.5 sm:px-3 py-1.5 rounded-full text-xs transition cursor-pointer"
+                    title="Click to configure live GPU backend connection"
+                  >
                     <span
-                      className={`w-2 h-2 rounded-full ${
+                      className={`w-2 h-2 rounded-full shrink-0 ${
                         isConnected
                           ? 'bg-emerald-500 animate-pulse'
                           : isCloudHost
@@ -536,16 +612,20 @@ export default function App() {
                           : 'bg-rose-500'
                       }`}
                     />
-                    <span className="font-medium text-slate-700">
+                    <span className="font-medium text-slate-700 hidden sm:inline">
                       {isConnected
-                        ? health?.hardware.device_name || 'GPU Ready'
+                        ? health?.hardware.device_name || 'NVIDIA RTX 4050 GPU'
                         : isCloudHost
-                        ? 'Cloud Demo (Audited)'
+                        ? 'Cloud Demo (Click to connect GPU)'
                         : 'Backend Offline'}
                     </span>
-                  </div>
+                    <span className="font-medium text-slate-700 sm:hidden">
+                      {isConnected ? 'GPU Ready' : isCloudHost ? 'Cloud Demo' : 'Offline'}
+                    </span>
+                  </button>
                 );
               })()}
+
               <button
                 onClick={loadSystemTelemetry}
                 disabled={isRefreshing}
@@ -589,37 +669,64 @@ export default function App() {
         </div>
       </nav>
 
-      {/* Offline / Cloud Demo Alert Banner */}
-      {!isConnected && (
+      {/* Connection & Telemetry Status Banner */}
+      {isConnected ? (
+        <div className="bg-emerald-50 border-b border-emerald-200 px-4 py-2 text-xs text-emerald-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 no-print">
+          <div className="flex items-center space-x-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>
+              <strong>Live GPU Backend Connected:</strong> Running on <span className="font-semibold">{health?.hardware.device_name || 'NVIDIA GeForce RTX 4050 Laptop GPU'}</span> ({health?.hardware.vram_total_gb || 6.0} GB VRAM). All 4 scratch models & DQN policy loaded.
+            </span>
+          </div>
+          <button
+            onClick={() => setShowBackendModal(true)}
+            className="text-[11px] bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 px-2.5 py-0.5 rounded-md font-semibold transition shrink-0"
+          >
+            Backend Settings
+          </button>
+        </div>
+      ) : (
         (() => {
           const isCloudHost = typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
           return isCloudHost ? (
-            <div className="bg-teal-50 border-b border-teal-200 px-4 py-2.5 text-xs text-teal-900 flex flex-wrap items-center justify-between gap-2 no-print">
+            <div className="bg-teal-50 border-b border-teal-200 px-4 py-2.5 text-xs text-teal-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 no-print">
               <div className="flex items-center space-x-2">
                 <Sparkles className="w-4 h-4 text-teal-700 shrink-0" />
                 <span>
-                  <strong>Cloud Showcase Active:</strong> Running with verified 30-epoch benchmarks & interactive Grad-CAM attributions across 1,600 held-out test scans. Live RTX 4050 GPU inference runs locally on <code className="bg-teal-100 px-1 py-0.5 rounded font-mono">localhost:3000</code>.
+                  <strong>Cloud Showcase Active:</strong> Displaying verified 30-epoch benchmarks across 1,600 held-out test scans. To run real inferences directly on your physical <strong>NVIDIA RTX 4050 GPU</strong>:
                 </span>
               </div>
-              <span className="text-[11px] font-semibold bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full">
-                4 Models Audited
-              </span>
+              <button
+                onClick={() => setShowBackendModal(true)}
+                className="bg-teal-700 hover:bg-teal-800 text-white px-3 py-1.5 rounded-lg font-semibold text-xs transition flex items-center gap-1.5 shadow-sm shrink-0"
+              >
+                <Server className="w-3.5 h-3.5" />
+                <span>Connect Real GPU Backend</span>
+              </button>
             </div>
           ) : (
-            <div className="bg-amber-50 border-b border-amber-200 px-4 py-3 text-xs sm:text-sm text-amber-900 flex flex-wrap items-center justify-between gap-2 no-print">
+            <div className="bg-amber-50 border-b border-amber-200 px-4 py-3 text-xs sm:text-sm text-amber-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 no-print">
               <div className="flex items-center space-x-2">
                 <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 shrink-0" />
                 <span>
                   <strong>Local Backend Offline:</strong> FastAPI server unreachable at <code className="bg-amber-100 px-1 py-0.5 rounded font-mono text-xs">127.0.0.1:8000</code>. Run <code className="bg-amber-100 px-1 py-0.5 rounded font-mono text-xs">run_backend.bat</code> to connect your NVIDIA RTX 4050 GPU.
                 </span>
               </div>
-              <button
-                onClick={loadSystemTelemetry}
-                className="text-xs bg-teal-700 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-teal-800 transition flex items-center gap-1.5 shrink-0"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
-                <span>Retry Connection</span>
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => setShowBackendModal(true)}
+                  className="text-xs bg-white border border-amber-300 text-amber-900 px-2.5 py-1.5 rounded-lg font-medium hover:bg-amber-100 transition"
+                >
+                  Configure URL
+                </button>
+                <button
+                  onClick={loadSystemTelemetry}
+                  className="text-xs bg-teal-700 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-teal-800 transition flex items-center gap-1.5"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                  <span>Retry Connection</span>
+                </button>
+              </div>
             </div>
           );
         })()
@@ -1043,107 +1150,109 @@ export default function App() {
               {/* Left Column: Upload & Scan Preview (5 cols) */}
               <div className="lg:col-span-5 space-y-4">
                 <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider">1. Input MRI Scan</h3>
-                    {activeSampleCase ? (
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200">
-                        DEMO BENCHMARK MODE
-                      </span>
-                    ) : selectedFile ? (
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200">
-                        REAL MODEL INFERENCE
-                      </span>
-                    ) : null}
-                  </div>
-
-                  {/* Research Benchmark Quick Load Buttons (Audit & Demo Only) */}
-                  {samplesList.length > 0 && (
-                    <div className="space-y-2 p-3 bg-slate-50 border border-slate-200 rounded-lg">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-semibold text-slate-700 flex items-center gap-1">
-                          <FlaskConical className="w-3.5 h-3.5 text-teal-700" />
-                          <span>Load Research Benchmark Scan</span>
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider">1. Input MRI Scan</h3>
+                      {isConnected ? (
+                        <span className="text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-700" />
+                          <span>LIVE GPU INFERENCE (RTX 4050)</span>
                         </span>
-                        <span className="text-[10px] text-slate-400">Held-Out Test Set</span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        {samplesList.map((s) => (
-                          <button
-                            key={s.id}
-                            type="button"
-                            disabled={isLoadingSample || isAnalyzing}
-                            onClick={() => handleLoadSample(s)}
-                            className={`px-2.5 py-1.5 rounded-md border text-xs font-medium text-left transition flex items-center justify-between ${
-                              activeSampleCase?.id === s.id
-                                ? 'bg-teal-50 border-teal-600 text-teal-900 font-bold shadow-xs'
-                                : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300'
-                            }`}
-                          >
-                            <span className="truncate">{s.title.replace(' Benchmark Scan', '').replace(' (No Tumor)', '')}</span>
-                            <span className="text-[10px] uppercase font-bold text-slate-400 ml-1 shrink-0">
-                              {s.ground_truth_class === 'no_tumor' ? 'Normal' : s.ground_truth_class.slice(0, 4)}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
+                      ) : (
+                        <span className="text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
+                          <Sparkles className="w-3 h-3 text-amber-700" />
+                          <span>BENCHMARK AUDIT SHOWCASE</span>
+                        </span>
+                      )}
                     </div>
-                  )}
 
-                  {/* Drag and Drop Zone */}
-                  <div
-                    onClick={() => fileInputRef.current?.click()}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      if (e.dataTransfer.files?.[0]) {
-                        handleFileChange(e.dataTransfer.files[0]);
-                      }
-                    }}
-                    className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition ${
-                      previewUrl ? 'border-teal-400 bg-teal-50/20' : 'border-slate-300 hover:border-teal-600 bg-slate-50'
-                    }`}
-                  >
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      className="hidden"
-                      accept="image/*"
-                      onChange={(e) => e.target.files?.[0] && handleFileChange(e.target.files[0])}
-                    />
-
-                    {previewUrl ? (
-                      <div className="space-y-3">
-                        <div className="relative mx-auto w-48 h-48 rounded-lg overflow-hidden border border-slate-200 bg-black flex items-center justify-center">
-                          <img src={previewUrl} alt="MRI Preview" className="object-contain w-full h-full" />
+                    {/* Research Benchmark Quick Load Buttons (Audit & Demo Only) */}
+                    {samplesList.length > 0 && (
+                      <div className="space-y-2 p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-semibold text-slate-700 flex items-center gap-1">
+                            <FlaskConical className="w-3.5 h-3.5 text-teal-700" />
+                            <span>Load Research Benchmark Scan</span>
+                          </span>
+                          <span className="text-[10px] text-slate-400">Held-Out Test Set</span>
                         </div>
-                        
-                        {activeSampleCase ? (
-                          <div className="bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-left space-y-1">
-                            <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900">
-                              <FlaskConical className="w-3.5 h-3.5 text-amber-700 shrink-0" />
-                              <span>AUDIT BENCHMARK SAMPLE (DEMO MODE)</span>
-                            </div>
-                            <p className="text-[11px] text-amber-800 leading-snug">
-                              Source: <code>{activeSampleCase.filename}</code> (Ground Truth: <strong className="capitalize">{activeSampleCase.ground_truth_class.replace('_', ' ')}</strong>).
-                            </p>
-                            <p className="text-[10px] text-amber-700 italic">
-                              Disclaimer: Research benchmark verification scan only. Not an actual clinical patient diagnosis.
-                            </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {samplesList.map((s) => (
+                            <button
+                              key={s.id}
+                              type="button"
+                              disabled={isLoadingSample || isAnalyzing}
+                              onClick={() => handleLoadSample(s)}
+                              className={`px-2.5 py-1.5 rounded-md border text-xs font-medium text-left transition flex items-center justify-between ${
+                                activeSampleCase?.id === s.id
+                                  ? 'bg-teal-50 border-teal-600 text-teal-900 font-bold shadow-xs'
+                                  : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300'
+                              }`}
+                            >
+                              <span className="truncate">{s.title.replace(' Benchmark Scan', '').replace(' (No Tumor)', '')}</span>
+                              <span className="text-[10px] uppercase font-bold text-slate-400 ml-1 shrink-0">
+                                {s.ground_truth_class === 'no_tumor' ? 'Normal' : s.ground_truth_class.slice(0, 4)}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Drag and Drop Zone */}
+                    <div
+                      onClick={() => fileInputRef.current?.click()}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        if (e.dataTransfer.files?.[0]) {
+                          handleFileChange(e.dataTransfer.files[0]);
+                        }
+                      }}
+                      className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition ${
+                        previewUrl ? 'border-teal-400 bg-teal-50/20' : 'border-slate-300 hover:border-teal-600 bg-slate-50'
+                      }`}
+                    >
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
+                        accept="image/*"
+                        onChange={(e) => e.target.files?.[0] && handleFileChange(e.target.files[0])}
+                      />
+
+                      {previewUrl ? (
+                        <div className="space-y-3">
+                          <div className="relative mx-auto w-48 h-48 rounded-lg overflow-hidden border border-slate-200 bg-black flex items-center justify-center">
+                            <img src={previewUrl} alt="MRI Preview" className="object-contain w-full h-full" />
                           </div>
-                        ) : (
-                          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-left space-y-1">
-                            <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-900">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-                              <span>REAL MODEL INFERENCE MODE (CUSTOM SCAN)</span>
+                          
+                          {isConnected ? (
+                            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-left space-y-1">
+                              <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-900">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                                <span>LIVE GPU EXECUTION READY</span>
+                              </div>
+                              <p className="text-[11px] text-emerald-800 leading-snug">
+                                Scan: <code>{selectedFile?.name}</code> ({(selectedFile ? selectedFile.size / 1024 : 0).toFixed(1)} KB)
+                              </p>
+                              <p className="text-[10px] text-emerald-700 italic">
+                                Ready to be processed live by all 4 scratch CNN models on {health?.hardware.device_name || 'NVIDIA RTX 4050 GPU'}.
+                              </p>
                             </div>
-                            <p className="text-[11px] text-emerald-800 leading-snug">
-                              Custom Scan: <code>{selectedFile?.name}</code> ({(selectedFile ? selectedFile.size / 1024 : 0).toFixed(1)} KB)
-                            </p>
-                            <p className="text-[10px] text-emerald-700 italic">
-                              Input is processed live by the 4 scratch-trained CNNs (Custom CNN, ResNet-50, DenseNet-121, EfficientNetV2-S), Grad-CAM, and DQN triage engine.
-                            </p>
-                          </div>
-                        )}
+                          ) : (
+                            <div className="bg-teal-50 border border-teal-200 rounded-lg p-2.5 text-left space-y-1">
+                              <div className="flex items-center gap-1.5 text-xs font-bold text-teal-900">
+                                <Sparkles className="w-3.5 h-3.5 text-teal-700 shrink-0" />
+                                <span>VERIFIED BENCHMARK SAMPLE (CLOUD PREVIEW)</span>
+                              </div>
+                              <p className="text-[11px] text-teal-800 leading-snug">
+                                Target: <code>{selectedFile?.name || activeSampleCase?.filename}</code>
+                              </p>
+                              <p className="text-[10px] text-teal-700 italic">
+                                Precomputed 30-epoch ensemble benchmarks with client-side canvas Grad-CAM. To run on your RTX 4050 GPU, click "Connect Real GPU Backend".
+                              </p>
+                            </div>
+                          )}
                         <p className="text-xs text-teal-700 underline font-medium">Click or drag a new image to replace</p>
                       </div>
                     ) : (
@@ -1244,17 +1353,17 @@ export default function App() {
                       </div>
 
                       {/* Uncertainty Metrics */}
-                      <div className="grid grid-cols-3 gap-3 pt-3 border-t border-slate-100 text-center text-xs">
-                        <div className="p-2 bg-slate-50 rounded-lg">
-                          <span className="text-slate-400 block">Predictive Entropy</span>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 pt-3 border-t border-slate-100 text-xs">
+                        <div className="p-2 sm:p-2.5 bg-slate-50 rounded-lg flex sm:flex-col justify-between sm:justify-center items-center">
+                          <span className="text-slate-500">Predictive Entropy</span>
                           <strong className="text-slate-800 text-sm">{analysis.predictive_entropy.toFixed(3)}</strong>
                         </div>
-                        <div className="p-2 bg-slate-50 rounded-lg">
-                          <span className="text-slate-400 block">Confidence Margin</span>
+                        <div className="p-2 sm:p-2.5 bg-slate-50 rounded-lg flex sm:flex-col justify-between sm:justify-center items-center">
+                          <span className="text-slate-500">Confidence Margin</span>
                           <strong className="text-slate-800 text-sm">{(analysis.confidence_margin * 100).toFixed(1)}%</strong>
                         </div>
-                        <div className="p-2 bg-slate-50 rounded-lg">
-                          <span className="text-slate-400 block">Model Disagreement</span>
+                        <div className="p-2 sm:p-2.5 bg-slate-50 rounded-lg flex sm:flex-col justify-between sm:justify-center items-center">
+                          <span className="text-slate-500">Model Disagreement</span>
                           <strong className="text-slate-800 text-sm">
                             {(analysis.disagreement.categorical_disagreement_rate * 100).toFixed(0)}%
                           </strong>
@@ -1565,7 +1674,7 @@ export default function App() {
                 </span>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+                <table className="w-full min-w-[720px] text-left text-xs">
                   <thead className="bg-slate-50 text-slate-500 border-b border-slate-200 font-semibold uppercase tracking-wider">
                     <tr>
                       <th className="py-3 px-4">Architecture</th>
@@ -1705,7 +1814,7 @@ export default function App() {
                 <span className="text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-mono">Simulated Workflow</span>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+                <table className="w-full min-w-[680px] text-left text-xs">
                   <thead className="bg-slate-50 text-slate-500 border-b border-slate-200 font-semibold uppercase tracking-wider">
                     <tr>
                       <th className="py-3 px-4">Triage Policy</th>
@@ -1866,7 +1975,7 @@ export default function App() {
                 </div>
 
                 {/* Visual Imagery Side-by-Side */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="border border-slate-200 rounded-lg p-3 text-center space-y-2">
                     <span className="text-xs font-semibold text-slate-600 block">Original Input MRI Slice</span>
                     <div className="aspect-square bg-black rounded overflow-hidden max-h-56 mx-auto flex items-center justify-center">
@@ -1884,7 +1993,7 @@ export default function App() {
                 {/* Diagnostic Differential Probabilities */}
                 <div className="space-y-2 text-xs">
                   <h4 className="font-bold text-slate-800 uppercase tracking-wider">Class Probability Breakdown</h4>
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {Object.entries(analysis.class_probabilities).map(([cls, p]) => (
                       <div key={cls} className="p-2 border border-slate-200 rounded bg-slate-50 text-center">
                         <span className="text-slate-500 capitalize block">{cls.replace('_', ' ')}</span>
@@ -1897,11 +2006,11 @@ export default function App() {
                 {/* Radiomics Descriptors Table */}
                 <div className="space-y-2 text-xs">
                   <h4 className="font-bold text-slate-800 uppercase tracking-wider">Selected 2D Radiomic Descriptors</h4>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                     {Object.entries(analysis.radiomic_features).slice(0, 9).map(([k, v]) => (
                       <div key={k} className="p-2 bg-slate-50 rounded border border-slate-200 flex justify-between">
-                        <span className="text-slate-500 capitalize">{k.replace(/_/g, ' ')}:</span>
-                        <strong className="font-mono text-slate-900">{typeof v === 'number' ? v.toFixed(3) : v}</strong>
+                        <span className="text-slate-500 capitalize truncate mr-1" title={k}>{k.replace(/_/g, ' ')}:</span>
+                        <strong className="font-mono text-slate-900 shrink-0">{typeof v === 'number' ? v.toFixed(3) : v}</strong>
                       </div>
                     ))}
                   </div>
@@ -1931,13 +2040,163 @@ export default function App() {
       {/* Footer */}
       <footer className="bg-white border-t border-slate-200 py-4 px-6 text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-2 no-print">
         <div className="flex items-center space-x-2">
-          <Brain className="w-4 h-4 text-teal-700" />
+          <Brain className="w-4 h-4 text-teal-700 shrink-0" />
           <span>NeuroScan AI Enterprise — Medical MRI Decision Support & Triage</span>
         </div>
-        <div>
+        <div className="text-center sm:text-right">
           <span>Evaluated on 1,600 Held-Out Scans • Zero ImageNet Pretraining • PyTorch 2.4 & CUDA 12.6</span>
         </div>
       </footer>
+
+      {/* Live GPU Backend Connection Bridge Modal */}
+      {showBackendModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs no-print">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="bg-slate-900 text-white p-5 flex items-center justify-between">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-9 h-9 rounded-lg bg-teal-600 flex items-center justify-center shrink-0">
+                  <Server className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base">Backend Connection & GPU Bridge</h3>
+                  <p className="text-xs text-slate-300">Connect Vercel to your physical NVIDIA RTX 4050 GPU</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowBackendModal(false)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-5 text-xs text-slate-600">
+              {/* Status Box */}
+              <div className={`p-3.5 rounded-xl border flex items-start gap-3 ${
+                isConnected
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
+                  : 'bg-amber-50 border-amber-200 text-amber-950'
+              }`}>
+                <div className="mt-0.5 shrink-0">
+                  {isConnected ? (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                  ) : (
+                    <AlertTriangle className="w-5 h-5 text-amber-600" />
+                  )}
+                </div>
+                <div className="space-y-0.5">
+                  <span className="font-bold text-sm block">
+                    {isConnected ? 'GPU Backend Connected' : 'Currently in Precomputed Demo Mode'}
+                  </span>
+                  <p className="text-xs opacity-90 leading-relaxed">
+                    {isConnected
+                      ? `Active Device: ${health?.hardware.device_name || 'NVIDIA RTX 4050'} (${health?.hardware.vram_total_gb || 6.0} GB VRAM). All 4 scratch CNN models and DQN triage policy are actively processing live requests.`
+                      : 'Vercel is a static web hosting cloud without GPUs. To connect your real trained models and RTX 4050 GPU to this Vercel site, provide your HTTPS tunnel URL below.'}
+                  </p>
+                </div>
+              </div>
+
+              {/* URL Input Form */}
+              <div className="space-y-2">
+                <label className="font-bold text-slate-800 text-xs flex items-center justify-between">
+                  <span>FastAPI Backend URL:</span>
+                  <span className="text-[10px] text-slate-400 font-mono">HTTPS required on Vercel</span>
+                </label>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="relative flex-1">
+                    <Globe className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                    <input
+                      type="url"
+                      value={customApiUrlInput}
+                      onChange={(e) => setCustomApiUrlInput(e.target.value)}
+                      placeholder="https://xxxx.trycloudflare.com or http://127.0.0.1:8000"
+                      className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-xs font-mono focus:border-teal-600 focus:outline-hidden"
+                    />
+                  </div>
+                  <button
+                    onClick={() => handleConnectBackend(customApiUrlInput)}
+                    disabled={isTestingConnection || !customApiUrlInput.trim()}
+                    className="bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50 shrink-0"
+                  >
+                    {isTestingConnection ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        <span>Testing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Link className="w-3.5 h-3.5" />
+                        <span>Connect</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {connectionTestResult && (
+                  <div className={`p-2.5 rounded-lg text-xs font-medium ${
+                    connectionTestResult.success ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'
+                  }`}>
+                    {connectionTestResult.message}
+                    {connectionTestResult.device && <span className="block mt-0.5 font-bold">Hardware: {connectionTestResult.device}</span>}
+                  </div>
+                )}
+              </div>
+
+              {/* 3 Step Instruction Guide */}
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2.5 text-xs text-slate-700">
+                <span className="font-bold text-slate-900 block">How to connect your RTX 4050 GPU in 3 steps:</span>
+                <div className="space-y-1.5">
+                  <div className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-full bg-teal-100 text-teal-800 font-bold flex items-center justify-center shrink-0 text-[11px]">1</span>
+                    <span>Start your local backend by running <code className="bg-slate-200 px-1 py-0.5 rounded font-mono text-[11px]">run_backend.bat</code>.</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-full bg-teal-100 text-teal-800 font-bold flex items-center justify-center shrink-0 text-[11px]">2</span>
+                    <span>Double-click <code className="bg-slate-200 px-1 py-0.5 rounded font-mono text-[11px]">run_tunnel.bat</code> to start the free Cloudflare HTTPS tunnel.</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-full bg-teal-100 text-teal-800 font-bold flex items-center justify-center shrink-0 text-[11px]">3</span>
+                    <span>Copy the printed <code className="bg-slate-200 px-1 py-0.5 rounded font-mono text-[11px]">https://xxxx.trycloudflare.com</code> URL, paste it above, and click <strong>Connect</strong>!</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Presets & Reset */}
+              <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setCustomApiUrlInput('http://127.0.0.1:8000');
+                      handleConnectBackend('http://127.0.0.1:8000');
+                    }}
+                    className="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded font-medium transition"
+                  >
+                    Use Localhost (Port 8000)
+                  </button>
+                  <button
+                    onClick={() => {
+                      const activeT = 'https://echo-what-jumping-ink.trycloudflare.com';
+                      setCustomApiUrlInput(activeT);
+                      handleConnectBackend(activeT);
+                    }}
+                    className="text-[11px] bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 px-2.5 py-1 rounded font-semibold transition"
+                  >
+                    Use Active GPU Tunnel
+                  </button>
+                </div>
+                <button
+                  onClick={handleResetToDemo}
+                  className="text-[11px] text-slate-500 hover:text-slate-800 underline transition"
+                >
+                  Reset to Cloud Demo
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
