@@ -241,6 +241,7 @@ def extract_uncertainty_warnings(
 # API Endpoints
 # -----------------------------------------------------------------------------
 
+@app.get("/health", response_model=HealthResponse, include_in_schema=False)
 @app.get("/api/health", response_model=HealthResponse, tags=["Diagnostics"])
 @app.get("/api/v1/health", response_model=HealthResponse, include_in_schema=False)
 async def health_check() -> HealthResponse:
@@ -258,6 +259,7 @@ async def health_check() -> HealthResponse:
     )
 
 
+@app.get("/models", response_model=ModelsResponse, include_in_schema=False)
 @app.get("/api/models", response_model=ModelsResponse, tags=["Models"])
 @app.get("/api/v1/models", response_model=ModelsResponse, include_in_schema=False)
 @app.get("/api/v1/readiness", response_model=ModelsResponse, include_in_schema=False)
@@ -288,6 +290,7 @@ async def list_models() -> ModelsResponse:
     )
 
 
+@app.post("/analyze", response_model=AnalyzeResponse, include_in_schema=False)
 @app.post("/api/analyze", response_model=AnalyzeResponse, tags=["Inference"])
 async def analyze_scan(
     file: UploadFile = File(...),
@@ -438,6 +441,7 @@ async def analyze_scan(
     )
 
 
+@app.post("/explain", response_model=ExplainResponse, include_in_schema=False)
 @app.post("/api/explain", response_model=ExplainResponse, tags=["Explainability"])
 async def explain_scan(
     file: UploadFile = File(...),
@@ -476,6 +480,7 @@ async def explain_scan(
     )
 
 
+@app.post("/features", response_model=FeaturesResponse, include_in_schema=False)
 @app.post("/api/features", response_model=FeaturesResponse, tags=["Radiomics"])
 async def extract_scan_features(file: UploadFile = File(...)) -> FeaturesResponse:
     """Extract 15 quantitative radiomics-style morphological and textural features."""
@@ -495,6 +500,7 @@ async def extract_scan_features(file: UploadFile = File(...)) -> FeaturesRespons
     )
 
 
+@app.get("/evaluation", response_model=EvaluationResponse, include_in_schema=False)
 @app.get("/api/evaluation", response_model=EvaluationResponse, tags=["Evaluation"])
 async def get_evaluation_metrics() -> EvaluationResponse:
     """Retrieve frozen benchmark results comparing models, ensemble, and RL triage."""
@@ -588,6 +594,7 @@ SAMPLE_CASES = [
 ]
 
 
+@app.get("/samples", include_in_schema=False)
 @app.get("/api/samples", tags=["Samples"])
 def list_sample_scans() -> Dict[str, Any]:
     """Return pre-configured representative held-out test scans for research evaluation."""
@@ -598,6 +605,7 @@ def list_sample_scans() -> Dict[str, Any]:
     }
 
 
+@app.get("/samples/{sample_id}/image", include_in_schema=False)
 @app.get("/api/samples/{sample_id}/image", tags=["Samples"])
 def get_sample_scan_image(sample_id: str):
     """Retrieve the JPEG image binary for a specific research benchmark scan."""

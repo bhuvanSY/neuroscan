@@ -227,8 +227,13 @@ export default function App() {
     setConnectionTestResult(null);
     try {
       const cleanUrl = urlToTest.trim().replace(/\/$/, '');
-      const res = await fetch(`${cleanUrl}/health`, { headers: { 'Bypass-Tunnel-Reminder': 'true' } });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      let res = await fetch(`${cleanUrl}/health`, { headers: { 'Bypass-Tunnel-Reminder': 'true' } }).catch(() => null);
+      if (!res || !res.ok) {
+        res = await fetch(`${cleanUrl}/api/health`, { headers: { 'Bypass-Tunnel-Reminder': 'true' } }).catch(() => null);
+      }
+      if (!res || !res.ok) {
+        throw new Error(`HTTP ${res ? res.status : 'Network Error / Unreachable'}`);
+      }
       const data = await res.json();
       setCustomApiUrl(cleanUrl);
       setConnectionTestResult({
