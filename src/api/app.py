@@ -88,6 +88,8 @@ class ServiceState:
         self.checkpoints_dir = self.root / "checkpoints"
         self.reports_dir = self.root / "reports"
         self.device = get_device("auto")
+        if self.device.type == "cpu":
+            torch.set_num_threads(1)
         self.readiness_mgr = ModelReadinessManager(self.checkpoints_dir)
         self.radiomics = RadiomicsExtractor()
 

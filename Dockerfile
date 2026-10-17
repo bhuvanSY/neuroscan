@@ -19,4 +19,4 @@ COPY . .
 
 EXPOSE 10000
 
-CMD ["sh", "-c", "python -m uvicorn src.api.app:app --host 0.0.0.0 --port ${PORT}"]
+CMD ["sh", "-c", "python -m uvicorn src.api.app:app --host 0.0.0.0 --port ${PORT} --workers 1"]
