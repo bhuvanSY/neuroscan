@@ -139,9 +139,9 @@ export default function App() {
   const [showBackendModal, setShowBackendModal] = useState<boolean>(false);
   const [customApiUrlInput, setCustomApiUrlInput] = useState<string>(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('neuroscan_custom_api_url') || 'https://echo-what-jumping-ink.trycloudflare.com';
+      return localStorage.getItem('neuroscan_custom_api_url') || 'https://inspired-video-encouraged-proposed.trycloudflare.com';
     }
-    return 'https://echo-what-jumping-ink.trycloudflare.com';
+    return 'https://inspired-video-encouraged-proposed.trycloudflare.com';
   });
   const [isTestingConnection, setIsTestingConnection] = useState<boolean>(false);
   const [connectionTestResult, setConnectionTestResult] = useState<{ success: boolean; message: string; device?: string } | null>(null);
@@ -181,7 +181,7 @@ export default function App() {
 
       // If backend is not reached yet and we're on cloud (e.g. Vercel) without a saved custom URL:
       if (!h && typeof window !== 'undefined' && !localStorage.getItem('neuroscan_custom_api_url')) {
-        const defaultTunnel = 'https://echo-what-jumping-ink.trycloudflare.com';
+        const defaultTunnel = 'https://inspired-video-encouraged-proposed.trycloudflare.com';
         try {
           const probe = await fetch(`${defaultTunnel}/health`, { headers: { 'Bypass-Tunnel-Reminder': 'true' } });
           if (probe.ok) {
@@ -2055,8 +2055,14 @@ export default function App() {
 
       {/* Live GPU Backend Connection Bridge Modal */}
       {showBackendModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs no-print">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div
+          onClick={() => setShowBackendModal(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs no-print cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 cursor-default"
+          >
             {/* Modal Header */}
             <div className="bg-slate-900 text-white p-5 flex items-center justify-between">
               <div className="flex items-center space-x-2.5">
@@ -2168,6 +2174,15 @@ export default function App() {
                 </div>
               </div>
 
+              {/* Prominent Explore Project Button */}
+              <button
+                onClick={() => setShowBackendModal(false)}
+                className="w-full bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+              >
+                <Brain className="w-4 h-4 text-teal-400" />
+                <span>Close & Explore Full Project in Cloud Demo Mode</span>
+              </button>
+
               {/* Presets & Reset */}
               <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
                 <div className="flex flex-wrap items-center gap-2">
@@ -2182,7 +2197,7 @@ export default function App() {
                   </button>
                   <button
                     onClick={() => {
-                      const activeT = 'https://echo-what-jumping-ink.trycloudflare.com';
+                      const activeT = 'https://inspired-video-encouraged-proposed.trycloudflare.com';
                       setCustomApiUrlInput(activeT);
                       handleConnectBackend(activeT);
                     }}

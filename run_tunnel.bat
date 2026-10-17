@@ -24,6 +24,6 @@ echo Press Ctrl+C at any time to close the tunnel.
 echo ===============================================================================
 echo.
 
-"%~dp0tools\cloudflared.exe" tunnel --protocol http2 --url http://127.0.0.1:8000
+"%~dp0tools\cloudflared.exe" tunnel --protocol http2 --edge-ip-version 4 --url http://127.0.0.1:8000
 
 pause
