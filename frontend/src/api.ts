@@ -10,9 +10,10 @@ import {
 } from './types';
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '');
+const TUNNEL_HEADERS: Record<string, string> = { 'Bypass-Tunnel-Reminder': 'true' };
 
 export async function fetchHealth(): Promise<HealthResponse> {
-  const res = await fetch(`${API_BASE}/health`);
+  const res = await fetch(`${API_BASE}/health`, { headers: TUNNEL_HEADERS });
   if (!res.ok) {
     throw new Error(`Health check failed: HTTP ${res.status}`);
   }
@@ -20,7 +21,7 @@ export async function fetchHealth(): Promise<HealthResponse> {
 }
 
 export async function fetchModels(): Promise<ModelsResponse> {
-  const res = await fetch(`${API_BASE}/models`);
+  const res = await fetch(`${API_BASE}/models`, { headers: TUNNEL_HEADERS });
   if (!res.ok) {
     throw new Error(`Models query failed: HTTP ${res.status}`);
   }
@@ -87,7 +88,7 @@ export async function extractFeatures(file: File): Promise<FeaturesResponse> {
 }
 
 export async function fetchEvaluation(): Promise<EvaluationResponse> {
-  const res = await fetch(`${API_BASE}/evaluation`);
+  const res = await fetch(`${API_BASE}/evaluation`, { headers: TUNNEL_HEADERS });
   if (!res.ok) {
     throw new Error(`Evaluation metrics query failed: HTTP ${res.status}`);
   }
@@ -95,7 +96,7 @@ export async function fetchEvaluation(): Promise<EvaluationResponse> {
 }
 
 export async function fetchSamples(): Promise<import('./types').SamplesResponse> {
-  const res = await fetch(`${API_BASE}/samples`);
+  const res = await fetch(`${API_BASE}/samples`, { headers: TUNNEL_HEADERS });
   if (!res.ok) {
     throw new Error(`Failed to load research samples: HTTP ${res.status}`);
   }
@@ -103,7 +104,7 @@ export async function fetchSamples(): Promise<import('./types').SamplesResponse>
 }
 
 export async function fetchSampleImageBlob(sampleId: string): Promise<Blob> {
-  const res = await fetch(`${API_BASE}/samples/${sampleId}/image`);
+  const res = await fetch(`${API_BASE}/samples/${sampleId}/image`, { headers: TUNNEL_HEADERS });
   if (!res.ok) {
     throw new Error(`Failed to fetch sample image: HTTP ${res.status}`);
   }
