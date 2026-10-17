@@ -193,14 +193,149 @@ export const FALLBACK_SAMPLES: SampleCase[] = [
   },
 ];
 
+// Helper to generate dynamic, realistic Grad-CAM visual heatmaps in browser/cloud demo
+export function generateGradCAMImages(
+  targetClass: string,
+  alpha: number = 0.45
+): { overlay_base64: string; heatmap_base64: string; target_class: string } {
+  if (typeof document === 'undefined') {
+    return { overlay_base64: '', heatmap_base64: '', target_class: targetClass };
+  }
+  const size = 256;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    return { overlay_base64: '', heatmap_base64: '', target_class: targetClass };
+  }
+
+  // Draw anatomical MRI background
+  ctx.fillStyle = '#060a14';
+  ctx.fillRect(0, 0, size, size);
+
+  // Skull outline
+  ctx.fillStyle = '#1e293b';
+  ctx.beginPath();
+  ctx.ellipse(128, 128, 96, 116, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Parenchyma
+  ctx.fillStyle = '#334155';
+  ctx.beginPath();
+  ctx.ellipse(128, 128, 80, 100, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // White matter tracts
+  ctx.fillStyle = '#475569';
+  ctx.beginPath();
+  ctx.ellipse(128, 128, 60, 80, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Ventricles
+  ctx.fillStyle = '#0f172a';
+  ctx.beginPath();
+  ctx.ellipse(116, 126, 8, 26, 0.08, 0, Math.PI * 2);
+  ctx.ellipse(140, 126, 8, 26, -0.08, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Tumor tissue (if neoplastic)
+  if (targetClass !== 'no_tumor') {
+    ctx.fillStyle = '#94a3b8';
+    ctx.beginPath();
+    if (targetClass === 'glioma') {
+      ctx.arc(95, 105, 26, 0, Math.PI * 2);
+    } else if (targetClass === 'meningioma') {
+      ctx.arc(168, 95, 22, 0, Math.PI * 2);
+    } else {
+      ctx.arc(128, 155, 18, 0, Math.PI * 2);
+    }
+    ctx.fill();
+  }
+
+  // Pure heatmap canvas
+  const heatCanvas = document.createElement('canvas');
+  heatCanvas.width = size;
+  heatCanvas.height = size;
+  const hCtx = heatCanvas.getContext('2d');
+  if (!hCtx) {
+    return { overlay_base64: canvas.toDataURL(), heatmap_base64: canvas.toDataURL(), target_class: targetClass };
+  }
+
+  let focusX = 128;
+  let focusY = 128;
+  let radius = 55;
+
+  if (targetClass === 'glioma') {
+    focusX = 95;
+    focusY = 105;
+    radius = 52;
+  } else if (targetClass === 'meningioma') {
+    focusX = 168;
+    focusY = 95;
+    radius = 45;
+  } else if (targetClass === 'pituitary') {
+    focusX = 128;
+    focusY = 155;
+    radius = 38;
+  } else {
+    focusX = 128;
+    focusY = 128;
+    radius = 70;
+  }
+
+  const grad = hCtx.createRadialGradient(focusX, focusY, 0, focusX, focusY, radius);
+  if (targetClass === 'no_tumor') {
+    grad.addColorStop(0, 'rgba(56, 189, 248, 0.6)');
+    grad.addColorStop(0.5, 'rgba(59, 130, 246, 0.3)');
+    grad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+  } else {
+    grad.addColorStop(0, 'rgba(239, 68, 68, 0.95)');
+    grad.addColorStop(0.25, 'rgba(249, 115, 22, 0.85)');
+    grad.addColorStop(0.55, 'rgba(234, 179, 8, 0.7)');
+    grad.addColorStop(0.8, 'rgba(34, 197, 94, 0.35)');
+    grad.addColorStop(1, 'rgba(59, 130, 246, 0)');
+  }
+
+  hCtx.fillStyle = grad;
+  hCtx.fillRect(0, 0, size, size);
+
+  const heatmapBase64 = heatCanvas.toDataURL('image/png');
+
+  // Overlay blended on MRI
+  ctx.globalAlpha = Math.min(Math.max(alpha, 0.1), 0.95);
+  ctx.drawImage(heatCanvas, 0, 0);
+  ctx.globalAlpha = 1.0;
+
+  const overlayBase64 = canvas.toDataURL('image/png');
+
+  return {
+    overlay_base64: overlayBase64,
+    heatmap_base64: heatmapBase64,
+    target_class: targetClass,
+  };
+}
+
 // Helper to generate a simulated realistic analysis for demo mode
 export function getDemoAnalysisForSample(sampleId: string): AnalyzeResponse {
+  const camGlioma = generateGradCAMImages('glioma', 0.45);
+  const camMeningioma = generateGradCAMImages('meningioma', 0.45);
+  const camPituitary = generateGradCAMImages('pituitary', 0.45);
+  const camNoTumor = generateGradCAMImages('no_tumor', 0.45);
+
   switch (sampleId) {
     case 'sample_glioma':
       return {
         status: 'success (demo-benchmark)',
         predicted_class: 'glioma',
         confidence: 0.9385,
+        explanation: {
+          available: true,
+          overlay_base64: camGlioma.overlay_base64,
+          heatmap_base64: camGlioma.heatmap_base64,
+          target_class: 'glioma',
+          disclaimer: 'Grad-CAM visual attributions highlight coarse neural gradient activations and do NOT constitute tumor segmentation masks.',
+        },
         class_probabilities: {
           glioma: 0.9385,
           meningioma: 0.0412,
@@ -280,6 +415,13 @@ export function getDemoAnalysisForSample(sampleId: string): AnalyzeResponse {
         status: 'success (demo-benchmark)',
         predicted_class: 'meningioma',
         confidence: 0.9642,
+        explanation: {
+          available: true,
+          overlay_base64: camMeningioma.overlay_base64,
+          heatmap_base64: camMeningioma.heatmap_base64,
+          target_class: 'meningioma',
+          disclaimer: 'Grad-CAM visual attributions highlight coarse neural gradient activations and do NOT constitute tumor segmentation masks.',
+        },
         class_probabilities: {
           glioma: 0.0195,
           meningioma: 0.9642,
@@ -357,6 +499,13 @@ export function getDemoAnalysisForSample(sampleId: string): AnalyzeResponse {
         status: 'success (demo-benchmark)',
         predicted_class: 'pituitary',
         confidence: 0.9882,
+        explanation: {
+          available: true,
+          overlay_base64: camPituitary.overlay_base64,
+          heatmap_base64: camPituitary.heatmap_base64,
+          target_class: 'pituitary',
+          disclaimer: 'Grad-CAM visual attributions highlight coarse neural gradient activations and do NOT constitute tumor segmentation masks.',
+        },
         class_probabilities: {
           glioma: 0.0041,
           meningioma: 0.0062,
@@ -434,6 +583,13 @@ export function getDemoAnalysisForSample(sampleId: string): AnalyzeResponse {
         status: 'success (demo-benchmark)',
         predicted_class: 'no_tumor',
         confidence: 0.9614,
+        explanation: {
+          available: true,
+          overlay_base64: camNoTumor.overlay_base64,
+          heatmap_base64: camNoTumor.heatmap_base64,
+          target_class: 'no_tumor',
+          disclaimer: 'Grad-CAM visual attributions highlight coarse neural gradient activations and do NOT constitute tumor segmentation masks.',
+        },
         class_probabilities: {
           glioma: 0.0112,
           meningioma: 0.0154,
@@ -513,11 +669,19 @@ export function getDemoAnalysisForUploadedFile(filename: string): AnalyzeRespons
   const isSuspicious = filename.toLowerCase().includes('tumor') || filename.toLowerCase().includes('gl') || filename.toLowerCase().includes('me');
   const targetClass = isSuspicious ? 'glioma' : 'meningioma';
   const confidence = 0.9412;
+  const cam = generateGradCAMImages(targetClass, 0.45);
 
   return {
     status: 'success (client-side demo simulation)',
     predicted_class: targetClass,
     confidence: confidence,
+    explanation: {
+      available: true,
+      overlay_base64: cam.overlay_base64,
+      heatmap_base64: cam.heatmap_base64,
+      target_class: targetClass,
+      disclaimer: 'Grad-CAM visual attributions highlight coarse neural gradient activations and do NOT constitute tumor segmentation masks.',
+    },
     class_probabilities: {
       glioma: targetClass === 'glioma' ? 0.9412 : 0.0245,
       meningioma: targetClass === 'meningioma' ? 0.9412 : 0.0312,

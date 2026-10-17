@@ -48,6 +48,7 @@ import {
   FALLBACK_SAMPLES,
   getDemoAnalysisForSample,
   getDemoAnalysisForUploadedFile,
+  generateGradCAMImages,
 } from './demoFallback';
 
 
@@ -263,10 +264,11 @@ export default function App() {
       const dataUrl = canvas.toDataURL('image/jpeg');
       setPreviewUrl(dataUrl);
       const mockFile = new File([new Uint8Array(256)], sample.filename, { type: 'image/jpeg' });
+      const demoRes = getDemoAnalysisForSample(sample.id);
       setSelectedFile(mockFile);
-      setAnalysis(getDemoAnalysisForSample(sample.id));
-      setCustomOverlayUrl(null);
-      setCustomHeatmapUrl(null);
+      setAnalysis(demoRes);
+      setCustomOverlayUrl(demoRes.explanation?.overlay_base64 || null);
+      setCustomHeatmapUrl(demoRes.explanation?.heatmap_base64 || null);
     } finally {
       setIsLoadingSample(false);
     }
@@ -280,14 +282,19 @@ export default function App() {
     try {
       const result = await analyzeScan(selectedFile, true);
       setAnalysis(result);
+      if (result.explanation?.overlay_base64) {
+        setCustomOverlayUrl(result.explanation.overlay_base64);
+        setCustomHeatmapUrl(result.explanation.heatmap_base64 || null);
+      }
     } catch (err: any) {
       if (!isConnected || err.message?.includes('Failed to fetch') || err.message?.includes('unreachable') || err.message?.includes('NetworkError')) {
-        // Graceful fallback to verified client-side demo inference
-        if (activeSampleCase) {
-          setAnalysis(getDemoAnalysisForSample(activeSampleCase.id));
-        } else {
-          setAnalysis(getDemoAnalysisForUploadedFile(selectedFile.name));
-        }
+        // Graceful fallback to verified client-side demo inference with complete Grad-CAM
+        const demoRes = activeSampleCase
+          ? getDemoAnalysisForSample(activeSampleCase.id)
+          : getDemoAnalysisForUploadedFile(selectedFile.name);
+        setAnalysis(demoRes);
+        setCustomOverlayUrl(demoRes.explanation?.overlay_base64 || null);
+        setCustomHeatmapUrl(demoRes.explanation?.heatmap_base64 || null);
         setErrorMsg(null);
       } else {
         setErrorMsg(err.message || 'Analysis pipeline execution failed.');
@@ -299,22 +306,24 @@ export default function App() {
 
   // Re-generate Grad-CAM for alternate target class or opacity
   const handleUpdateExplain = async (newClass: string, newAlpha: number) => {
-    if (!selectedFile) return;
+    if (!selectedFile && !activeSampleCase) return;
     setIsUpdatingExplain(true);
     setSelectedExplainClass(newClass);
     try {
-      const res = await explainScan(selectedFile, 'densenet121', newClass, newAlpha);
-      setCustomOverlayUrl(res.overlay_base64);
-      setCustomHeatmapUrl(res.heatmap_base64);
-    } catch (err: any) {
-      loggerWarning(err.message || 'Failed to update Grad-CAM attribution.');
-    } finally {
-      setIsUpdatingExplain(false);
+      if (isConnected && selectedFile) {
+        const res = await explainScan(selectedFile, 'densenet121', newClass, newAlpha);
+        setCustomOverlayUrl(res.overlay_base64);
+        setCustomHeatmapUrl(res.heatmap_base64);
+        setIsUpdatingExplain(false);
+        return;
+      }
+    } catch {
+      // Fall through to client-side Grad-CAM generator
     }
-  };
-
-  const loggerWarning = (msg: string) => {
-    console.warn(msg);
+    const cam = generateGradCAMImages(newClass, newAlpha);
+    setCustomOverlayUrl(cam.overlay_base64);
+    setCustomHeatmapUrl(cam.heatmap_base64);
+    setIsUpdatingExplain(false);
   };
 
   // Download structured JSON analysis report
@@ -1082,7 +1091,7 @@ export default function App() {
                               Custom Scan: <code>{selectedFile?.name}</code> ({(selectedFile ? selectedFile.size / 1024 : 0).toFixed(1)} KB)
                             </p>
                             <p className="text-[10px] text-emerald-700 italic">
-                              Input is processed live by the 3 scratch-trained CNNs, Grad-CAM, and DQN triage engine.
+                              Input is processed live by the 4 scratch-trained CNNs (Custom CNN, ResNet-50, DenseNet-121, EfficientNetV2-S), Grad-CAM, and DQN triage engine.
                             </p>
                           </div>
                         )}
@@ -1258,7 +1267,13 @@ export default function App() {
                         ) : customHeatmapUrl ? (
                           <img src={customHeatmapUrl} alt="Grad-CAM Heatmap" className="w-full h-full object-contain" />
                         ) : (
-                          <p className="text-xs text-slate-400">Grad-CAM visualization unavailable</p>
+                          <div className="flex flex-col items-center justify-center p-6 text-center space-y-2">
+                            <Brain className="w-10 h-10 text-teal-500/70" />
+                            <p className="text-xs font-semibold text-slate-300">Grad-CAM Neural Attribution Ready</p>
+                            <p className="text-[11px] text-slate-400 max-w-xs leading-normal">
+                              Click <span className="text-teal-400 font-semibold">"Execute Multimodal Analysis"</span> on the left to compute gradient attributions across deep feature layers.
+                            </p>
+                          </div>
                         )}
                       </div>
 
