@@ -521,12 +521,30 @@ export default function App() {
                 )}
               </div>
 
-              <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full text-xs">
-                <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
-                <span className="font-medium text-slate-700">
-                  {isConnected ? (health?.hardware.device_name || 'GPU Ready') : 'Backend Offline'}
-                </span>
-              </div>
+              {/* Connection Status Badge */}
+              {(() => {
+                const isCloudHost = typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+                return (
+                  <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full text-xs">
+                    <span
+                      className={`w-2 h-2 rounded-full ${
+                        isConnected
+                          ? 'bg-emerald-500 animate-pulse'
+                          : isCloudHost
+                          ? 'bg-teal-500 animate-pulse'
+                          : 'bg-rose-500'
+                      }`}
+                    />
+                    <span className="font-medium text-slate-700">
+                      {isConnected
+                        ? health?.hardware.device_name || 'GPU Ready'
+                        : isCloudHost
+                        ? 'Cloud Demo (Audited)'
+                        : 'Backend Offline'}
+                    </span>
+                  </div>
+                );
+              })()}
               <button
                 onClick={loadSystemTelemetry}
                 disabled={isRefreshing}
@@ -567,21 +585,38 @@ export default function App() {
 
       {/* Offline / Cloud Demo Alert Banner */}
       {!isConnected && (
-        <div className="bg-amber-50 border-b border-amber-200 px-4 py-3 text-xs sm:text-sm text-amber-900 flex flex-wrap items-center justify-between gap-2 no-print">
-          <div className="flex items-center space-x-2">
-            <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-teal-700 shrink-0" />
-            <span>
-              <strong>Research Benchmark & Demo Mode:</strong> Operating with audited model metrics across 1,600 held-out test scans. To connect a live GPU server, run uvicorn locally or set <code className="bg-amber-100 px-1 py-0.5 rounded font-mono text-xs">VITE_API_BASE_URL</code>.
-            </span>
-          </div>
-          <button
-            onClick={loadSystemTelemetry}
-            className="text-xs bg-teal-700 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-teal-800 transition flex items-center gap-1.5 shrink-0"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
-            <span>Retry Connection</span>
-          </button>
-        </div>
+        (() => {
+          const isCloudHost = typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+          return isCloudHost ? (
+            <div className="bg-teal-50 border-b border-teal-200 px-4 py-2.5 text-xs text-teal-900 flex flex-wrap items-center justify-between gap-2 no-print">
+              <div className="flex items-center space-x-2">
+                <Sparkles className="w-4 h-4 text-teal-700 shrink-0" />
+                <span>
+                  <strong>Cloud Showcase Active:</strong> Running with verified 30-epoch benchmarks & interactive Grad-CAM attributions across 1,600 held-out test scans. Live RTX 4050 GPU inference runs locally on <code className="bg-teal-100 px-1 py-0.5 rounded font-mono">localhost:3000</code>.
+                </span>
+              </div>
+              <span className="text-[11px] font-semibold bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full">
+                4 Models Audited
+              </span>
+            </div>
+          ) : (
+            <div className="bg-amber-50 border-b border-amber-200 px-4 py-3 text-xs sm:text-sm text-amber-900 flex flex-wrap items-center justify-between gap-2 no-print">
+              <div className="flex items-center space-x-2">
+                <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 shrink-0" />
+                <span>
+                  <strong>Local Backend Offline:</strong> FastAPI server unreachable at <code className="bg-amber-100 px-1 py-0.5 rounded font-mono text-xs">127.0.0.1:8000</code>. Run <code className="bg-amber-100 px-1 py-0.5 rounded font-mono text-xs">run_backend.bat</code> to connect your NVIDIA RTX 4050 GPU.
+                </span>
+              </div>
+              <button
+                onClick={loadSystemTelemetry}
+                className="text-xs bg-teal-700 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-teal-800 transition flex items-center gap-1.5 shrink-0"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <span>Retry Connection</span>
+              </button>
+            </div>
+          );
+        })()
       )}
 
       {/* Main Content Viewport */}
